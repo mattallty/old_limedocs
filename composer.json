@@ -1,7 +1,10 @@
 {
     "name": "limedocs/limedocs",
+    "type": "library",
     "description": "A great PHP documentation tool for your APIs",
     "minimum-stability": "stable",
+    "homepage": "http://limedocs.io",
+    "keywords": ["doc", "documentation", "phpdoc", "apidoc", "apigen", "phpdocumentator"],
     "license": "MIT",
     "authors": [
         {
@@ -21,7 +24,9 @@
         "symfony/event-dispatcher": "2.5.*",
         "symfony/dependency-injection": "2.5.*",
         "symfony/config": "2.5.*",
-        "symfony/yaml": "2.5"
+        "symfony/yaml": "2.5",
+        "doctrine/cache": "~1.3.1",
+        "michelf/php-markdown": "~1.4.0"
     },
     "autoload": {
         "psr-4": {"Lime\\": "src/", "Lime\\Test\\" : "tests/"}

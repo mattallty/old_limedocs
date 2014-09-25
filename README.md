@@ -1,4 +1,4 @@
 limedocs
 ========
 
-A great PHP documentation tool for your APIs
+The great PHP documentation tool for your APIs

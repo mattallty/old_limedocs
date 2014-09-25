@@ -1,1 +1,16 @@
 # Services
+
+services:
+
+  # Use one of the cache provider bundled in
+  cache:
+    class:        %cli_tool.class%
+    arguments:    []
+
+  event_bus:
+    class:        %event_bus.class%
+    arguments:    [%event_bus.hostname%, %event_bus.port%, %event_bus.user%, %event_bus.password%]
+
+  user_service:
+    class:        %user_service.class%
+    arguments:    [@user_storage]
