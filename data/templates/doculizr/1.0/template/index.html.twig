@@ -1,0 +1,10 @@
+{% extends "base.html.twig" %}
+{% block sidebar %}
+    <ul class="namespaces">
+    {% for item in namespaces %}
+            {% set cleanNs = item|replace({"\\" : "."}) %}
+            {% set nsUrl = "#{cleanNs|lower}.#{meta.fileExt}" %}
+        <li><a href="{{nsUrl}}">{{cleanNs}}</a></li>
+    {% endfor %}
+    </ul>
+{% endblock %}

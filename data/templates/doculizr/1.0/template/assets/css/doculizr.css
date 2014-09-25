@@ -1,0 +1,489 @@
+@charset "utf-8";
+
+body {
+    font:13px/18px 'Open Sans', sans-serif;
+    margin:0;
+    padding:0;
+}
+
+header {
+    background: #333; /* Old browsers */
+    height:44px;
+    width:100%;
+    position:fixed;
+    width:100%;
+    box-sizing: border-box;
+    top:0;
+    left:0;
+    z-index: 1000;
+}
+
+a, a:visited, a:hover {
+    color: #000099;
+    color:#0062b8;
+    background-color: transparent;
+}
+
+#logo {
+    width:102px;
+    text-align:right;
+    height:44px;
+    float:right;
+    display:block;
+}
+
+#logo:hover {
+    background:#000;
+}
+
+#logo a {
+    display:block;
+    height:44px;
+    width:102px;
+    background:transparent url(../img/doculizr.dark.png) no-repeat 0 5px;
+    background-size:100%;
+    position:relative;
+    text-decoration:none;
+    color:#E0E0E0;
+}
+
+#logo span {
+    font-size:11px;
+    color:#b5b5b5;
+    display:block;
+    width:100%;
+    margin-top:1px;
+    text-align:center;
+    text-shadow: -1px -1px 0 #000;
+}
+
+#main {
+    position:relative;
+    height:100%;
+    margin-top:44px;
+    z-index: 5;
+}
+
+.muted {
+    color:#bbb;
+}
+
+.clear {
+    clear:both;
+}
+
+#content h2,
+#content h3,
+#content h4,
+#content h5 {
+    color:#000066;
+    margin-bottom:8px;
+}
+
+#content h2 {
+    margin-top:20px;
+    margin-bottom:12px;
+    padding-top:10px;
+}
+
+
+#content p {
+    margin:0 0 1em 0;
+}
+
+#sidebar a {
+    text-decoration:none;
+}
+#sidebar a:hover {
+    text-decoration:underline;
+}
+
+#sidebar {
+    position:fixed;
+    top:44px;
+    left:0;
+    bottom:0;
+    overflow-y: auto;
+    width: 186px;
+    padding: 5px;
+    background:#f0f0f0;
+    box-shadow: inset -3px 0 6px rgba(0,0,0,.2)
+}
+
+ul {
+    list-style: none;
+    padding:0;
+    margin:0;
+    line-height:20px;
+}
+
+ul.see {
+    list-style-type: square !important;
+    margin-left:20px;
+    padding-left:5px;
+}
+
+li { 
+    list-style: none;
+    padding: 0 0 0 17px; 
+    text-indent:0px;
+}
+
+ul.see li {
+    list-style-type: square !important;
+    padding: 0 !important;
+    margin-left:10px;
+    font-size:110%;
+    color:#999;
+}
+
+li.active {
+    font-weight:bold;
+}
+
+div.extends {
+    font-size:45%;
+    font-weight:lighter;
+    margin:7px 0 0 4px;
+    color:#444;
+}
+
+div.extends:before {
+    content:"\21AA ";
+    color:#777;
+}
+
+div.extends a {
+    text-decoration: none;
+}
+
+#content {
+    margin-left: 196px;
+    padding: 10px;
+}
+
+header h1 {
+    color:#B8B8B8;
+    font-size:22px;
+    margin:0;
+    padding: 0;
+    height:44px;
+    line-height: 44px;
+    font-weight: 600;
+    font-style: italic;
+    text-indent: 10px;
+}
+
+#content h1 {
+    margin:0.1em 0 0.5em 0;
+}
+
+ul.namespaces > li {
+    background:url("../img/icon.ns.png") no-repeat left 3px;
+    background-size: 13px 13px;
+}
+ul.classes > li {
+    background:url("../img/icon.class.png") no-repeat left 3px;
+    background-size: 13px 13px;
+}
+ul.classes > li.abstract {
+    background:url("../img/icon.abstract.png") no-repeat left 3px;
+    background-size: 13px 13px;
+}
+ul.classes > li.trait {
+    background:url("../img/icon.trait.png") no-repeat left 3px;
+    background-size: 13px 13px;
+}
+ul.interfaces > li {
+    background:url("../img/icon.interface.png") no-repeat left 3px;
+    background-size: 13px 13px;
+}
+
+
+#sidebar a {
+    display:block;
+}
+#sidebar a:hover {
+    color:#FF8000;
+}
+
+ul.namespaces {
+    font-size: 95%;
+}
+ul.classes, 
+ul.interfaces {
+    font-size: 100%;
+    margin-left:1em;
+}
+
+#content ul.classes,
+#content ul.interfaces {
+    font-size:110%;
+    line-height:17px;
+}
+
+#content ul.classes li, #content ul.interfaces li {
+    margin-bottom:8px;
+}
+
+p > code {
+    font-size:95%;
+    background:#EFEFEF;
+    padding:1px 3px;
+    color:#222;
+    border-radius:3px;
+    border:1px solid #E0E0E0;
+}
+
+#sidebar ul.methods {
+    font-size:11px;
+    line-height:17px;
+    margin-bottom:10px;
+}
+
+#sidebar hr {
+    height:0px;
+    margin-top:3px;
+    margin-bottom:3px;
+    border:none;
+    background:none;
+    border-top:1px solid #CCC;
+    border-bottom:1px solid #fff;
+}
+
+span.class-ns {
+    font-size:60%;
+    display:block;
+    margin-bottom:10px;
+    font-weight:lighter;
+    color:#AAA;
+}
+
+span.class-ns a {
+    color:#AAA;
+    padding-bottom:0px;
+}
+
+span.class-ns a:hover {
+    text-decoration:underline;
+}
+
+div.classsynopsis, div.funcsynopsis {
+    background-color: #e1e1e1;
+    margin: 10px;
+    font-size:14px;
+    border: 1px outset #000;
+    padding:0.5em;
+}
+
+
+div.classsynopsis-field {
+    padding-left:3em;
+    margin:5px 0;
+}
+
+span.class-short-description,
+span.function-short-description {
+    color:#777;
+    font-size:70%;
+    font-weight: 600;
+    font-style:italic;
+}
+
+span.class-short-description p ,
+span.function-short-description p,
+ul.classes p,
+ul.interfaces p,
+table.members p{
+    display:inline;
+}
+.modifier {
+    color:rgb(0, 119, 0);
+}
+
+.modifier-small {
+    font-size:90%;
+    padding-left:5px;
+    font-style: italic;
+}
+
+.modifier a {
+    color: inherit;
+}
+
+table.members, table.changelog {
+    border-spacing: 0;
+    border-collapse: collapse;
+    box-sizing: border-box;
+    width:110%;
+    font-size:105%;
+    margin-bottom:15px;
+}
+
+table.changelog {
+    width:auto;
+    min-width:300px;
+    border:1px solid #ccc;
+    margin-left:10px;
+}
+
+table.members th {
+    white-space: nowrap;
+    min-width:105px !important;
+}
+
+table.changelog th {
+    white-space: nowrap;
+    min-width:45px !important;
+}
+
+table.members td, table.changelog td {
+    width:90%;
+}
+
+table.members th, table.members td, table.changelog th, table.changelog td {
+    text-align:left;
+    background:transparent;
+    padding:4px 8px;
+    font-weight:normal;
+}
+
+table.changelog th {
+    background:#EFEFEF !important;
+}
+
+table.members tr {
+    border-bottom:1px dotted #ccc;
+}
+
+.show-inherited {
+    font-weight:normal;
+    font-size:11px;
+    display:block;
+    margin:5px 25px 0 0;
+    line-height:11px;
+    float:right;
+    color:#777 !important;
+    text-decoration:none;
+    opacity:0.9;
+}
+.show-inherited:hover {
+    color:#333 !important;
+}
+
+.show-inherited:before {
+    content:"\21A7\0020\0020";
+}
+
+.inherited {
+    display:table-row;
+}
+.inherit-invisible {
+    display:none !important;
+}
+
+.variable {
+    color:#926700;
+    font-style: italic;
+    font-weight:600;
+}
+span.string {
+    color:#FF9955;
+}
+span.null {
+    color:#405d9c;
+}
+span.numeric {
+    color:#e34576;
+}
+
+
+ul.tree {
+    list-style-type: none;
+    margin: 10px;
+    padding: 10px;
+    float:right;
+    width:300px;
+    max-width:300px;
+    background:#EFEFEF;
+    border:1px solid #CCC;
+}
+
+ul.tree li {
+    margin: 0;
+    padding: 0 12px;
+    line-height: 20px;
+    background: url(../img/lastnode.png) no-repeat;
+}
+
+ul.tree li:first-child {
+    background:none !important;
+    padding-left:0 !important;
+}
+
+div.column {
+    box-sizing:border-box;
+    float:left;
+}
+
+div.column-50 {
+    width:50%;
+    min-width:350px;
+}
+div.column-33 {
+    width:33%;
+}
+
+#footer {
+    clear:both;
+}
+
+.func-class-prefix {
+    color:#777;
+}
+
+.long-description {
+    font-size:14px;
+    line-height:19px;
+}
+
+pre.code {
+    padding:5px;
+    margin:10px;
+    border:1px solid #cccccc;
+}
+
+dl.parameters {
+    font-size:14px;
+}
+dl.parameters dt {
+    margin-left:8px;
+}
+dl.parameters dd {
+    margin:10px 10px 10px 20px;
+    padding:8px;
+    background:#efefef;
+}
+
+a.class-link, a.interface-link, a.trait-link {
+    text-decoration: none;
+    border-bottom: 1px solid #0062b8;
+    color:#0062b8;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+a.method-link {
+    text-decoration: none;
+}
+
+a.class-link:hover, a.interface-link:hover, a.trait-link:hover, a.method-link:hover {
+    text-decoration: none;
+    color:#FFF;
+    background-color: #0062b8;
+    -webkit-transition: background-color 100ms ease-in-out;
+    -moz-transition: background-color 100ms ease-in-out;
+    -o-transition: background-color 100ms ease-in-out;
+    -ms-transition: background-color 100ms ease-in-out;
+    transition: background-color 100ms ease-in-out;
+}

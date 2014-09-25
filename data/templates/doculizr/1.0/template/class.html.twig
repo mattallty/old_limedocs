@@ -1,0 +1,191 @@
+{% extends "base.html.twig" %}
+
+{% block javascripts %}
+     {{ parent() }}
+     <script type="text/javascript" src="{{relative_path}}assets/js/shCore.js"></script>
+     <script type="text/javascript" src="{{relative_path}}assets/js/shBrushPhp.js"></script>
+{% endblock %}
+     
+{% block stylesheets %}
+     {{ parent() }}
+     <link href="{{relative_path}}assets/css/shCore.css" rel="stylesheet" type="text/css" />
+     <link href="{{relative_path}}assets/css/shThemeEclipse.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block sidebar %}
+    <ul class="namespaces">
+    {% for item in namespaces %}
+            {% set cleanNs = item|replace({"\\" : "."}) %}
+            {% set nsUrl = "#{cleanNs|lower}.#{meta.fileExt}" %}
+            {% if tmp.ns != item %}
+                <li><a href="{{nsUrl}}">{{cleanNs}}</a></li>
+            {% else %}
+                <hr />
+                <li class="active"><a href="{{nsUrl}}">{{cleanNs}}</a></li>
+                <ul class="classes">
+                {% for itemc in tmp.nsInfos.classes %}
+                    {% set cleanCls = itemc.name|replace({"\\" : "."}) %}
+                    {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
+                    {% if tmp.className != itemc.name %}
+                        <li{% if itemc.isTrait() %} class="trait" {% elseif itemc.isAbstract() %} class="abstract" {% endif %}><a href="{{clsUrl}}">{{itemc.getShortName()}}</a></li>
+                    {% else %}   
+                        <hr />
+                        <li class="active{% if itemc.isTrait() %} trait {% elseif itemc.isAbstract() %} abstract{% endif %}">{{itemc.getShortName()}}</li>
+                        <ul class="methods">
+                        {% for method in itemc.getMethods() %}
+                            {% if method.isInherited() == false %}
+                            <li><a href="{{cleanCls|lower}}.{{method.name|lower}}.{{meta.fileExt}}">{{method.name}}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+                <ul class="interfaces">
+                {% for itemc in tmp.nsInfos.interfaces %}
+                    {% set cleanCls = itemc.name|replace({"\\" : "."}) %}
+                    {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
+                    <li><a href="{{clsUrl}}">{{itemc.getShortName()}}</a></li>
+                {% endfor %}
+                </ul>
+                <hr />
+            {% endif %}
+            
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+
+{% block content %}
+    {% set classMeta = tmp.classInfos.getMetaData() %}
+    {% set extendedClass = tmp.classInfos.getInherits() %}
+    {% set impInterfaces = tmp.classInfos.getInterfaceNames() %}
+    {% set ctAncest = tmp.ancestors|length %}
+    {% if tmp.ancestors|length > 1 %}
+        {% set ct = 0 %}
+        {% set ml = 0 %}
+        <ul class="tree class-ancestors">
+            {% for ancestName,ancestObj in tmp.ancestors %}
+                {% if(ct+1 == ctAncest) %}
+                    <li style="margin-left:{{ml}}px"><b>{{ancestObj.getShortName()}}</b></li>
+                {% else %}
+                    <li style="margin-left:{{ml}}px"><a href="{{ancestObj.getDocFileName()}}">{{ancestObj.getShortName()}}</a></li>
+                {% endif %}
+                {% set ct = ct + 1 %}
+                {% if ct > 1 %}
+                    {% set ml = ml + 13 %}
+                {% endif %}
+            {% endfor %}
+        </ul>  
+    {% endif %}
+    <h1>{{tmp.className|showClassHtmlHead}} <span class="class-short-description">{{classMeta.shortDescription|raw}}</span>
+        {% if extendedClass or impInterfaces|length %}
+        <div class="extends">
+        {% endif %}
+        {% if extendedClass %}
+            {% set cleanExtCls = extendedClass.name|replace({"\\" : "." }) %}
+            {% set cleanExtClsUrl = "#{cleanExtCls|lower}" %}
+                        <span class="modifier">extends</span> <a href="{{cleanExtClsUrl}}.{{meta.fileExt}}">{{extendedClass.getShortName()}}</a>
+        {% endif %}
+        {% if impInterfaces|length %}
+            {% if extendedClass %},{% endif %}
+            {% set counterItf = 0 %}
+            <span class="modifier">implements</span>
+            {% for itf in impInterfaces %}
+                {% set counterItf = counterItf + 1 %}
+                {% set cleanItf = itf|replace({"\\" : "." }) %}
+                {% set iftSimple = cleanItf|split(".") %}
+                {% set cleanItfUrl = "#{cleanItf|lower}.#{meta.fileExt}" %}
+                <a href="{{cleanItfUrl}}">{{iftSimple[iftSimple|length-1]}}</a>
+                {% if counterItf < impInterfaces|length %}, {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% set usedTraits = tmp.classInfos.getTraitNames() %}
+        {% if usedTraits|length %}
+            {% if extendedClass or impInterfaces|length %},{% endif %}
+            {% set counterItf = 0 %}
+            <span class="modifier">uses</span>
+            {% for itf in usedTraits %}
+                {% set counterItf = counterItf + 1 %}
+                {% set cleanItf = itf|replace({"\\" : "." }) %}
+                {% set iftSimple = cleanItf|split(".") %}
+                {% set cleanItfUrl = "#{cleanItf|lower}.#{meta.fileExt}" %}
+                <a href="{{cleanItfUrl}}">{{iftSimple[iftSimple|length-1]}}</a>
+                {% if counterItf < usedTraits|length %}, {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if extendedClass or impInterfaces|length or usedTraits|length %}
+            </div>
+        {% endif %}
+    </h1>
+    
+    <h2>Description</h2>
+    {% set classDesc = tmp.classInfos.getPossibleDescription() %}
+    {% if classDesc %}
+        <div class="long-description">{{classDesc|raw}}</div>
+    {% else %}
+        <p class="muted">No description available.</p>
+    {% endif %}
+
+
+    <div>
+        <h2>Methods <a href="" onclick="return hideInheritedMembers(this, '#methods-list')" class="show-inherited">Hide inherited methods</a></h2>
+        <table class="methods members" id="methods-list">
+        {% for method in tmp.classInfos.getMethods() %}
+            {% if (meta.options['show-protected-members'] == true or method.isProtected() == false) %}
+                {% if (meta.options['show-private-members'] == true or method.isPrivate() == false) %}
+                    <tr class="{% if method.isInherited() %}inherited{% endif %} {% if method.isProtected() %}protected{% elseif method.isPrivate() %}private{% endif %}">
+                    <th><a href="{{method.getDocFileName()}}" class="method-link">
+                        {{method.getName()}}</a></th>
+                        <td>{{method.getShortDescription()|raw}}</td>
+                    </tr>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </table>
+    </div>
+    {% if tmp.classInfos.isInterface() == false %}
+    <div>
+        <h2>Properties <a href="" onclick="return hideInheritedMembers(this, '#properties-list')" class="show-inherited">Show protected &amp; private properties</a></h2>
+        <table class="properties members" id="properties-list">
+        {% for prop in tmp.classInfos.getProperties() %}
+            {# {% if (meta.options['show-protected-members'] == true or prop.isProtected() == false) %}
+                {% if (meta.options['show-private-members'] == true or prop.isPrivate() == false) %} #}
+                    <tr class="{% if prop.getInherits() %}inherited{% endif %}">
+                    <th>
+                        <span class="modifier">{{prop.getShortType()}}</span>
+                        <a href="#">${{prop.getName()}}</a></th>
+                        <td>{{prop.getDescription()|raw}}</td>
+                    </tr>
+               {# {% endif %}
+            {% endif %} #}
+        {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+    {% if constants|length %}
+    <div>
+        <h2>Constants</h2>
+        <table class="constants members" id="constants-list">
+        {% for constName, constInfos in constants %}
+            <tr class="{% if prop.getInherits() %}inherited{% endif %}">
+                <th>
+                    {{constName}}
+                </th>
+                <td><span class="modifier">{{constInfos.value}}</span></td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+    
+    {% if meta.options['show-classes-source'] %}
+        <h2 class="clear">Source Code</h2>
+        <pre class="brush: php; first-line:{{tmp.classInfos.getStartLine()}}">{{tmp.classInfos.getSourceCode()|raw}}</pre>
+
+        <script type="text/javascript">
+             SyntaxHighlighter.all()
+        </script>
+    {% endif %}
+    
+{% endblock %}

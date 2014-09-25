@@ -7,35 +7,44 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Lime\Parser;
 
-
-/**
- * Doculizr Parser
- *
- * @author Matthias Etienne <matt@allty.com>
- * @copyright (c) 2012, Matthias Etienne
- * @license http://doculizr.allty.com/license MIT
- * @link http://doculizr.allty.com Doculizr Website
- *
- */
-namespace Doculizr\Parser;
-
-use Doculizr\Utils\DoculizrUtils;
-use Doculizr\Finder\DoculizrFileInfo;
-use Doculizr\Core;
-use Doculizr\Tags\Utils;
+use Lime\Common\Utils as LimeUtils;
+use Lime\Filesystem\FileInfo;
+use Lime\Core;
 
 /**
- * Main Parser
- *
- * @package Doculizr
- * @subpackage Parser
+ * Parser
  */
-class DoculizrParser extends AbstractParser {
+class Parser {
+
+    /**
+     * @var \Doculizr\Finder\IFinder Finder instance
+     */
+    protected $finder;
+
     /**
      * @const SEMICOLON Semi-colon token
      */
     const SEMICOLON = ';';
+
+
+    /**
+     * Constructor
+     *
+     * @param \Doculizr\Finder\IFinder $finder A IFinder instance
+     * @param array $options Options
+     */
+    final public function __construct(IFinder &$finder)
+    {
+        $this->finder = &$finder;
+
+        if (($bootstrap = Core::getInstance()->getOption('bootstrap'))) {
+            require_once($bootstrap);
+        }
+
+        $this->parse();
+    }
 
     /**
      * Parse fileset
@@ -50,7 +59,7 @@ class DoculizrParser extends AbstractParser {
         foreach ($this->finder->getFileset() as $file => $fileInfo) {
             $this->getLogger()->info("Parsing file $file");
             $fileInfo = $this->parseFile($fileInfo);
-            $fileInfo->setFunctions(DoculizrUtils::getGlobalFunctions($fileInfo));
+            $fileInfo->setFunctions(LimeUtils::getGlobalFunctions($fileInfo));
             $this->finder->updateFileInfo($file, $fileInfo);
         }
         /**
@@ -64,12 +73,11 @@ class DoculizrParser extends AbstractParser {
      * Parse a DocBlock
      *
      * @param string $docBlock Docblock string
-     * @param \Doculizr\Finder\DoculizrFileInfo $fileInfo File informations
+     * @param FileInfo $fileInfo File informations
      * @param \Reflector $refObject Reflection object
      * @return array Parsed comments
      */
-    public static function parseDocComment($docBlock,
-            DoculizrFileInfo $fileInfo, \Reflector $refObject)
+    public static function parseDocComment($docBlock, FileInfo $fileInfo, \Reflector $refObject)
     {
         if (!$docBlock) {
             return null;
@@ -149,8 +157,8 @@ class DoculizrParser extends AbstractParser {
         $shortDesc = trim($desc['short']);
         $longDesc = trim($desc['long']);
 
-        empty($shortDesc) or $infos['shortDescription'] = DoculizrUtils::formatDescription($shortDesc, $fileInfo, $refObject);
-        empty($longDesc) or $infos['longDescription'] = DoculizrUtils::formatDescription($longDesc, $fileInfo, $refObject);
+        empty($shortDesc) or $infos['shortDescription'] = LimeUtils::formatDescription($shortDesc, $fileInfo, $refObject);
+        empty($longDesc) or $infos['longDescription'] = LimeUtils::formatDescription($longDesc, $fileInfo, $refObject);
         empty($parsedTags) or $infos['tags'] = $parsedTags;
 
         return $infos;
@@ -159,9 +167,9 @@ class DoculizrParser extends AbstractParser {
     /**
      * Detect public Classes, methods and functions contained in a file
      * 
-     * @return DoculizrFileInfo Augmented DoculizrFileInfo file object
+     * @return FileInfo Augmented DoculizrFileInfo file object
      */
-    protected function parseFile(DoculizrFileInfo $fileObject)
+    protected function parseFile(FileInfo $fileObject)
     {
         // start output buferring in case this file outputs something
         ob_start();
@@ -256,10 +264,10 @@ class DoculizrParser extends AbstractParser {
         }
 
         return $fileObject
-                        ->setNamespaces(DoculizrUtils::stripStartBackslash($namespaces))
-                        ->setUses(DoculizrUtils::stripStartBackslash($uses))
-                        ->setClasses(DoculizrUtils::stripStartBackslash($classes))
-                        ->setInterfaces(DoculizrUtils::stripStartBackslash($interfaces));
+                        ->setNamespaces(LimeUtils::stripStartBackslash($namespaces))
+                        ->setUses(LimeUtils::stripStartBackslash($uses))
+                        ->setClasses(LimeUtils::stripStartBackslash($classes))
+                        ->setInterfaces(LimeUtils::stripStartBackslash($interfaces));
     }
 
 }

@@ -1,0 +1,9 @@
+{
+    "name" : "doculizr",
+    "display-name" : "Doculizr template",
+    "version" : "1.0",
+    "author" : "Matthias ETIENNE",
+    "email" :  "matt@allty.com",
+    "url" : "http://doculizr.com",
+    "template-class" : "\\Doculizr\\Template\\DoculizrTemplate"
+ }
