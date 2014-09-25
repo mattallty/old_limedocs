@@ -1,0 +1,12 @@
+{
+    "name": "limedocs/limedocs",
+    "description": "A great PHP documentation tool for your APIs",
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matthias ETIENNE",
+            "email": "matthias@etienne.in"
+        }
+    ]
+}
