@@ -7,15 +7,13 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Doculizr\Reflection;
+namespace Lime\Reflection;
 
 /**
  * Reflection Factory
  *
- * @package Doculizr
- * @subpackage Reflection
  */
-class DoculizrReflectionFactory {
+class ReflectionFactory {
     protected static $factoryCache = array();
 
     public static function &factory(/* $className, $arg ... $argN */)

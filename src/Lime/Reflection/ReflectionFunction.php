@@ -7,21 +7,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Lime\Reflection;
 
-/**
- * Doculizr Reflection Function
- *
- * @author Matthias Etienne <matt@allty.com>
- * @copyright (c) 2012, Matthias Etienne
- * @license http://doculizr.allty.com/license MIT
- * @link http://doculizr.allty.com Doculizr Website
- *
- */
-namespace Doculizr\Reflection;
-
-use Doculizr\Parser\DoculizrParser;
-use Doculizr\Finder\DoculizrFileInfo;
-use Doculizr\Core;
+use Lime\Parser\Parser;
+use Lime\Filesystem\FileInfo;
+use Lime\Core;
 
 /**
  * Reflection class handling functions
@@ -31,15 +21,17 @@ use Doculizr\Core;
  * class, and make use of the {TMetaData} trait.
  * 
  */
-class DoculizrReflectionFunction extends \ReflectionFunction implements IMetaData {
+class ReflectionFunction extends \ReflectionFunction implements IMetaData {
     
     // use the TMetaData trait
     use TMetaData;
-    
-    
+
+    /**
+     * @var \Lime\Filesystem\FileInfo
+     */
     protected $fileInfo;
 
-    public function __construct($name, DoculizrFileInfo $fileInfo)
+    public function __construct($name, FileInfo $fileInfo)
     {
         Core::getLogger()->info("Analysing function $name");
         parent::__construct($name);
@@ -47,8 +39,7 @@ class DoculizrReflectionFunction extends \ReflectionFunction implements IMetaDat
         $this->fileInfo = $fileInfo;
 
         $this->setMetadata(
-                DoculizrParser::parseDocComment($this->getDocComment(),
-                        $this->fileInfo, $this)
+            Parser::parseDocComment($this->getDocComment(), $this->fileInfo, $this)
         );
     }
 

@@ -1,20 +1,11 @@
 <?php
-/**
- * This file is part of Doculizr -- The PHP 5 Documentation Generator
+/*
+ * This file is part of Limedocs
  *
- * @author Matthias Etienne <matt@allty.com>
- * @copyright (c) 2012, Matthias Etienne
- * @license http://doculizr.allty.com/license MIT
- * @link http://doculizr.allty.com Doculizr Website
+ * Copyright (C) Matthias ETIENNE <matthias@etienne.in>
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
- * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 namespace Doculizr\Template;
 

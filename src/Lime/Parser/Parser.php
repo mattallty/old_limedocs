@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * This file is part of Limedocs
  *
  * Copyright (C) Matthias ETIENNE <matthias@etienne.in>

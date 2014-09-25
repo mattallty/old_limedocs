@@ -7,43 +7,34 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-/**
- * Implements {DoculizrReflectionMethod} class
- *
- * @author Matthias Etienne <matt@allty.com>
- * @copyright (c) 2012, Matthias Etienne
- * @license http://doculizr.allty.com/license MIT
- * @link http://doculizr.allty.com Doculizr Website
- */
 namespace Lime\Reflection;
 
-use Doculizr\Parser\DoculizrParser;
-use Doculizr\Finder\DoculizrFileInfo;
-use Doculizr\Finder\DoculizrFileInfoFactory;
-use Doculizr\Utils\DoculizrUtils;
-use Doculizr\Core;
+use Lime\Parser\Parser;
+use Lime\Filesystem\FileInfo;
+use Lime\Filesystem\FileInfoFactory;
+use Lime\Common\Utils;
+use Lime\Core;
 
 /**
  * Reflection class handling class methods
  */
-class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
+class ReflectionMethod extends \ReflectionMethod implements IMetaData {
     
     // use the TMetaData trait
     use TMetaData;
     use TSourceCode;
     
     /**
-     * @var DoculizrReflectionClass Inherited class object
+     * @var ReflectionClass Inherited class object
      */
     protected $inheritsFromClass;
     /**
-     * @var Doculizr\Finder\DoculizrFileInfo File win which the method is declared. 
+     * @var FileInfo File win which the method is declared.
      */
     protected $fileInfo;
     
     /**
-     * @var DoculizrReflectionClass Class in which is declared the method. 
+     * @var ReflectionClass Class in which is declared the method.
      */
     protected $_class;
 
@@ -61,14 +52,14 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
     const VISIBILITY_PRIVATE = 'private';
     
     /**
-     * Creates a new DoculizrReflectionMethod from a class name, the name
+     * Creates a new {ReflectionMethod} from a class name, the name
      * of the method, and the related file.
      * 
      * @param string $class Class name in which is declared the method.
      * @param string $name Name of the method.
-     * @param \Doculizr\Finder\DoculizrFileInfo $fileInfo File in which is declared the method.
+     * @param FileInfo $fileInfo File in which is declared the method.
      */
-    public function __construct($class, $name, DoculizrFileInfo $fileInfo)
+    public function __construct($class, $name, FileInfo $fileInfo)
     {
         Core::getLogger()->info("Analysing method $class::$name()");
         parent::__construct($class, $name);
@@ -76,8 +67,7 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
         $this->fileInfo = $fileInfo;
 
         $this->setMetadata(
-                DoculizrParser::parseDocComment($this->getDocComment(),
-                        $this->fileInfo, $this)
+            Parser::parseDocComment($this->getDocComment(), $this->fileInfo, $this)
         );
     }
     
@@ -118,7 +108,7 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
                  * @todo Add reporting here
                  */
                 Core::getLogger()->warn("Method ".$this->getClass()->name.'::'.
-                        $this->getName()." has tag @inheritdoc but Doculizr ".
+                        $this->getName()." has tag @inheritdoc but Limedocs ".
                         "cannot found any documentation in class tree.");
                 
             }
@@ -191,13 +181,13 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         
         $ret = array();
-        $nativeTypes = DoculizrUtils::getNativeTypes();
+        $nativeTypes = Utils::getNativeTypes();
         foreach(explode('|', $type) as $type_str) {
             if(in_array($type_str, $nativeTypes)) {
                 $ret[] = $type_str;
             }else{
                 $ret[] = '<a href="'.strtolower(str_replace('\\', '.', $type_str)).'.html">'.
-                            DoculizrUtils::getElementShortName($type_str) .
+                            Utils::getElementShortName($type_str) .
                             //$type_str .
                          '</a>';
             }
@@ -215,9 +205,9 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
         $ret = array();
         foreach($this->getClass()->getInterfaceNames() as $itfName) {
             $itfTmpObj = new \ReflectionClass($itfName);
-            $fileInfo = DoculizrFileInfoFactory::factory($itfTmpObj->getFilename());
-            $ret[$itfName] = DoculizrReflectionFactory::factory(
-                        'Doculizr\Reflection\DoculizrReflectionClass', 
+            $fileInfo = FileInfoFactory::factory($itfTmpObj->getFilename());
+            $ret[$itfName] = ReflectionFactory::factory(
+                        'Lime\Reflection\ReflectionClass',
                         $itfName, 
                         $fileInfo);
         }
@@ -229,9 +219,9 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
                     foreach($inheritedClass->getInterfaceNames() as $itfName) {
                         if(!isset($ret[$itfName])) {
                             $itfTmpObj = new \ReflectionClass($itfName);
-                            $fileInfo = DoculizrFileInfoFactory::factory($itfTmpObj->getFilename());
-                            $ret[$itfName] = DoculizrReflectionFactory::factory(
-                                        'Doculizr\Reflection\DoculizrReflectionClass', 
+                            $fileInfo = FileInfoFactory::factory($itfTmpObj->getFilename());
+                            $ret[$itfName] = ReflectionFactory::factory(
+                                        'Lime\Reflection\ReflectionClass',
                                         $itfName, 
                                         $fileInfo);
                         }
@@ -271,7 +261,7 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
     /**
      * Get method's class
      * 
-     * @return \Doculizr\Reflection\DoculizrReflectionClass
+     * @return ReflectionClass
      */
     public function getClass() {
         return $this->_class;
@@ -280,10 +270,10 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
     /**
      * Sets associated class
      * 
-     * @param \Doculizr\Reflection\DoculizrReflectionClass $class The DoculizrReflectionClass instance
-     * @return \Doculizr\Reflection\DoculizrReflectionMethod
+     * @param ReflectionClass $class The {ReflectionClass} instance
+     * @return ReflectionMethod
      */
-    public function setClass(DoculizrReflectionClass $class) {
+    public function setClass(ReflectionClass $class) {
         $this->_class = $class;
         return $this;
     }
@@ -291,10 +281,10 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
     /**
      * Set parent class 
      * 
-     * @param \Doculizr\Reflection\DoculizrReflectionClass $class Parent Class object
-     * @return \Doculizr\Reflection\DoculizrReflectionMethod
+     * @param ReflectionClass $class Parent Class object
+     * @return ReflectionMethod
      */
-    public function setInherits(DoculizrReflectionClass $class)
+    public function setInherits(ReflectionClass $class)
     {
         $this->inheritsFromClass = $class;
         return $this;
@@ -311,9 +301,9 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
             }else{
                 foreach($traits as $trait) {
                     
-                    $fileInfo = DoculizrFileInfoFactory::factory($this->getFilename());
+                    $fileInfo = FileInfoFactory::factory($this->getFilename());
                     
-                    $traitClass = DoculizrReflectionFactory::factory('Doculizr\Reflection\DoculizrReflectionClass',
+                    $traitClass = ReflectionFactory::factory('Lime\Reflection\ReflectionClass',
                                     $trait, $fileInfo);
                     
                     if($traitClass->getMethod($this->getShortName())) {
@@ -353,7 +343,7 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
     /**
      * Get parent class
      * 
-     * @return DoculizrReflexionClass
+     * @return ReflexionClass
      */
     public function getInherits()
     {
@@ -424,7 +414,7 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
         if(!count($params)) {
             return '';
         }
-        $nativeTypes = DoculizrUtils::getNativeTypes();
+        $nativeTypes = Utils::getNativeTypes();
         $response = ' '; // 
         $counter = 0; 
         $hasOptional = 0;
@@ -442,7 +432,7 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
                     $sParam .= '<span class="modifier">'.$classType.'</span> ';
                 }else{
                     $sParam .= '<span class="modifier"><a href="'.strtolower(str_replace('\\', '.', $classType)).'.html">'.
-                                DoculizrUtils::getElementShortName($classType) .
+                                Utils::getElementShortName($classType) .
                                 //$type_str .
                              '</a></span> ';
                 }
@@ -499,7 +489,7 @@ class DoculizrReflectionMethod extends \ReflectionMethod implements IMetaData {
      * @return string Parameter name
      */
     private function getParameterNameFromString($parameter) {
-        // [ <required> Doculizr\Finder\IFinder &$finder ]
+        // [ <required> Lime\Finder\IFinder &$finder ]
         $rep = preg_replace('@Parameter #[0-9]+ \[ (<[a-z ]+>) ([a-zA-Z\\&\$_=\'\(\) ]+) \]@', '$2', $parameter);
         return $rep;
     }

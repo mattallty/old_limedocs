@@ -10,9 +10,9 @@
 
 namespace Lime\Reflection;
 
-use Doculizr\Parser\DoculizrParser;
-use Doculizr\Finder\DoculizrFileInfo;
-use Doculizr\Utils\DoculizrUtils;
+use Lime\Parser\Parser;
+use Lime\Filesystem\FileInfo;
+use Lime\Common\Utils;
 
 /**
  * Reflection class handling class properties.
@@ -20,13 +20,8 @@ use Doculizr\Utils\DoculizrUtils;
  * This reflection class handles class properties. It extends the native PHP class
  * {ReflectionProperty} and use the TMetaData trait.
  *
- * @author Matthias Etienne <matt@allty.com>
- * @copyright (c) 2012, Matthias Etienne
- * @license http://doculizr.allty.com/license MIT
- * @link http://doculizr.allty.com Doculizr Website
- *
  */
-class DoculizrReflectionProperty extends \ReflectionProperty implements IMetaData {
+class ReflectionProperty extends \ReflectionProperty implements IMetaData {
     
     use TMetaData;
     
@@ -34,20 +29,20 @@ class DoculizrReflectionProperty extends \ReflectionProperty implements IMetaDat
     protected $defaultValue;
 
     /**
-     * Creates a new DoculizrReflectionProperty object
+     * Creates a new ReflectionProperty object
      * 
      * @param string $class Classname holding the property
      * @param string $name property name
-     * @param \Doculizr\Finder\DoculizrFileInfo $fileInfo File in which is declared the property.
+     * @param FileInfo $fileInfo File in which is declared the property.
      */
-    public function __construct($class, $name, DoculizrFileInfo $fileInfo)
+    public function __construct($class, $name, FileInfo $fileInfo)
     {
         parent::__construct($class, $name);
 
         $this->fileInfo = $fileInfo;
 
         $this->setMetadata(
-                DoculizrParser::parseDocComment($this->getDocComment(),
+                Parser::parseDocComment($this->getDocComment(),
                         $this->fileInfo, $this)
         );
     }
@@ -83,17 +78,17 @@ class DoculizrReflectionProperty extends \ReflectionProperty implements IMetaDat
         $meta = $this->getMetaData();
         return (isset($meta['var']['description']) && 
                 !empty($meta['var']['description'])) ? 
-                DoculizrUtils::formatDescription($meta['var']['description'], $this->fileInfo, $this) : 
+                Utils::formatDescription($meta['var']['description'], $this->fileInfo, $this) :
                     '<span class="muted">No description.</span>';
     }
 
     /**
      * Sets the class from which inherits the current class
      * 
-     * @param \Doculizr\Reflection\DoculizrReflectionClass $class Inherited class
-     * @return \Doculizr\Reflection\DoculizrReflectionProperty
+     * @param ReflectionClass $class Inherited class
+     * @return ReflectionProperty
      */
-    public function setInherits(DoculizrReflectionClass $class)
+    public function setInherits(ReflectionClass $class)
     {
         $this->inheritsFromClass = $class;
         return $this;
@@ -103,7 +98,7 @@ class DoculizrReflectionProperty extends \ReflectionProperty implements IMetaDat
      * Sets the defaut value for the property.
      * 
      * @param mixed $default Default value.
-     * @return \Doculizr\Reflection\DoculizrReflectionProperty
+     * @return ReflectionProperty
      */
     public function setDefault($default)
     {
@@ -124,7 +119,7 @@ class DoculizrReflectionProperty extends \ReflectionProperty implements IMetaDat
     /**
      * Gets the inherited class
      * 
-     * @return \Doculizr\Reflection\DoculizrReflectionClass
+     * @return ReflectionClass
      */
     public function getInherits()
     {
