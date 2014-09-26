@@ -12,13 +12,12 @@ namespace Lime\Template;
 /**
  * Main templating class
  */
-class DoculizrTemplate extends AbstractTemplate {
+class DefaultTemplate extends AbstractTemplate {
 
     public function output() {
         
     }
-    
-    
+
     public function getIndexFile() {
         return 'index.twig.html';
     }

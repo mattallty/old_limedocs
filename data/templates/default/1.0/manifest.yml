@@ -1,10 +1,10 @@
 # Template manifest
 template:
   code    : default
-  name    : "Limedocs default template",
+  name    : "Limedocs default template"
   version : "1.0"
   author  :
     name: "Matthias ETIENNE"
     email :  "matt@allty.com"
-  url : "http://limedocs.com",
-  class : "\\Doculizr\\Template\\DoculizrTemplate"
+  url : "http://limedocs.com"
+  class : "\\Lime\\Template\\DefaultTemplate"

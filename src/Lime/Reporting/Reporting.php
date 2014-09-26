@@ -13,15 +13,14 @@ namespace Lime\Reporting;
 
 /**
  * Reporting class
- *
- * @author Matthias Etienne <matt@allty.com>
- * @copyright (c) 2012, Matthias Etienne
- * @license http://doculizr.allty.com/license MIT
- * @link http://doculizr.allty.com Doculizr Website
- *
  */
-
 class Reporting {
-    
+
+    protected $records = array();
+
+    public function record($message, $file = null, $line = null)
+    {
+        $this->records[] = compact('message', 'file', 'line');
+    }
     
 }
