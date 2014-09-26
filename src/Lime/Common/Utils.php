@@ -51,32 +51,6 @@ class Utils {
     }
 
     /**
-     * Strips the starting basckslash from a string, or from an array of strings.
-     * @param mixed $elem A string or an array of strings
-     * @return string
-     */
-    public static function stripStartBackslash($elem = '')
-    {
-        if (is_array($elem)) {
-            return array_map(array(__CLASS__, 'stripStartBackslash'), $elem);
-        }
-        return ltrim($elem, '\\');
-    }
-
-    public static function nsToPath($namespace) {
-        return strtr($namespace, '\\', '/');
-    }
-
-    public static function aerateNs($namespace) {
-        return str_replace('\\', '<span class="ns">\\</span>', $namespace);
-    }
-
-    public static function getElementShortName($elem) {
-        $parts = explode('\\', $elem);
-        return \array_pop($parts);
-    }
-
-    /**
      * @deprecated since version number
      * @param string $description The description string to beautify
      * @return string Returns the beautified description
@@ -117,33 +91,6 @@ class Utils {
 
 
     /**
-     * Get PHP native types
-     *
-     * @return string PHP Type, ie 'string', 'bool', 'float', etc.
-     */
-    public static function getNativeTypes()
-    {
-        return array(
-            'string',
-            'bool',
-            'boolean',
-            'int',
-            'void',
-            'integer',
-            'float',
-            'double',
-            'array',
-            'mixed',
-            'object',
-            'mixed',
-            'callable',
-            'resource',
-            'stdClass'
-        );
-    }
-
-
-    /**
      * Scope a string by prefixing it depending on environment, ie namespace,
      * imports, class, etc.
      *
@@ -180,36 +127,6 @@ class Utils {
         }
 
         return implode('|', $elements);
-    }
-
-
-    public static function getNamespaceTopLevel($namespace)
-    {
-        return strtok($namespace, '\\');
-    }
-
-
-    /**
-     * Check if given string correponds to a native PHP type
-     *
-     * @param string $type Type
-     * @return boolean returns true if $type is a native PHP type, otherwise false.
-     */
-    public static function isNativeType($type)
-    {
-        return in_array(strtolower($type), self::getNativeTypes());
-    }
-
-
-    /**
-     * Checks if a class name is fully scoped.
-     *
-     * @param string $element Element, ie class or interface name.
-     * @return string Returns the class name prepended by its namespace if needed.
-     */
-    public static function isFullyScoped($element)
-    {
-        return substr($element, 0, 1) === '\\';
     }
 
     public static function rmdirRecursive($dir)

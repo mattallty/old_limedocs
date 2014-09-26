@@ -2,15 +2,13 @@
 
 services:
 
-  # Use one of the cache provider bundled in
+  # Limedocs use doctrine/cache providers
+  #
+  # See the list here:
+  #     - https://github.com/doctrine/cache/tree/master/lib/Doctrine/Common/Cache
+  #
+  #
   cache:
-    class:        %cli_tool.class%
+    class:        \Lime\Common\Cache
     arguments:    []
 
-  event_bus:
-    class:        %event_bus.class%
-    arguments:    [%event_bus.hostname%, %event_bus.port%, %event_bus.user%, %event_bus.password%]
-
-  user_service:
-    class:        %user_service.class%
-    arguments:    [@user_storage]

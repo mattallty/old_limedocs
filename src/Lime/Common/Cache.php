@@ -9,7 +9,7 @@
  */
 namespace Lime\Common;
 
-use Doctrine\Common\Cache\Cache as DtCache;
+use Doctrine\Common\Cache\Cache as DoctrineCacheInterface;
 
 class Cache {
 
@@ -19,10 +19,22 @@ class Cache {
     protected $provider;
 
     /**
-     * @param DtCache $provider
+     * @param DoctrineCacheInterface $provider
      */
-    public function __construct(DtCache $provider) {
-        $this->provider = $provider;
+    public function __construct(DoctrineCacheInterface $provider = null) {
+
+        // take the provided provider :D
+        if (!is_null($provider)) {
+            $this->provider = $provider;
+
+        // Or take APC if it is enable in cli-mode
+        } elseif(function_exists('apc_store') && true === (bool) ini_get('apc.enable_cli')) {
+            $this->provider = new ApcCache();
+
+        // Or use a simple array
+        } else {
+            $this->provider = new ArrayCache();
+        }
     }
 
     /**
