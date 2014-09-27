@@ -24,7 +24,7 @@ class Cache {
     public function __construct(DoctrineCacheInterface $provider = null) {
 
         // take the provided provider :D
-        if (!is_null($provider)) {
+        if (false === is_null($provider)) {
             $this->provider = $provider;
 
         // Or take APC if it is enable in cli-mode

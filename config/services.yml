@@ -2,6 +2,17 @@
 
 services:
 
+  # The main cli app
+  cli:
+    class:  \Lime\Cli\LimedocsCli
+
+
+  # The logger
+  logger:
+    class:  \Lime\Logger\LoggerProxy
+    factory_class:  \Lime\App
+    factory_method: getLogger
+
   # Limedocs use doctrine/cache providers
   #
   # See the list here:

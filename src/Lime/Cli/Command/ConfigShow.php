@@ -13,7 +13,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Lime\Core;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Lime\App;
 
 /**
  * Class handling configuration display
@@ -27,7 +28,6 @@ class ConfigShow extends Command {
      */
     protected function configure(InputOption $input = null)
     {
-
         $this
                 ->setName('config:show')
                 ->setDescription('Show configuration variables.');
@@ -35,9 +35,12 @@ class ConfigShow extends Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $logger = new ConsoleLogger($output);
+        App::getInstance()->setLogger($logger);
 
-        foreach (Core::getBaseOptions() as $key => $value) {
-            $output->writeln("<comment>$key : $value</comment>");
+
+        foreach (array('foo' => 'bar', 'far' => 'bim') as $key => $value) {
+            App::getLogger()->notice("<comment>$key : $value</comment>");
         }
     }
 

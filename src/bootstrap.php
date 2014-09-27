@@ -8,21 +8,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Lime;
+$tz = ini_get('date.timezone');
 
-if ($tz = \ini_get('date.timezone') && !empty($tz)) {
-    define('LIMEDOCS_DEFAULT_TIMEZONE', $tz);
-}else{
-    define('LIMEDOCS_DEFAULT_TIMEZONE', 'UTC');
+if (!$tz or empty($tz)) {
+    date_default_timezone_set('UTC');
 }
 
 define('DS', DIRECTORY_SEPARATOR);
-define('LIMEDOCS_ROOT_DIR', \realpath(\dirname(__FILE__)));
-
-$_ENV['LIMEDOCS_TIMEZONE'] = $_ENV['LIMEDOCS_TIMEZONE'] ?: LIMEDOCS_DEFAULT_TIMEZONE;
-$_ENV['LIMEDOCS_DATA_DIR'] = $_ENV['LIMEDOCS_DATA_DIR'] ?: LIMEDOCS_ROOT_DIR . DS . 'data';
-
-date_default_timezone_set(LIMEDOCS_TIMEZONE);
+define('LIMEDOCS_ROOT_DIR', realpath(dirname(__FILE__). DS . '..'));
 
 function includeIfExists($file)
 {
