@@ -13,12 +13,11 @@ namespace Lime\Common;
 use Lime\Reflection\ReflectionFactory;
 use Lime\Filesystem\FileInfo;
 
-
-
 /**
  * Collection of utils
  */
-class Utils {
+class Utils
+{
 
 
     public static $globalFunctions;
@@ -35,8 +34,10 @@ class Utils {
             $definedFuncs = get_defined_functions();
             // get only user-defined functions
             foreach ($definedFuncs['user'] as $func) {
-                $refFunc = ReflectionFactory::factory('Lime\Reflection\ReflectionFunction',
-                    $func, $file);
+                $refFunc = ReflectionFactory::factory(
+                    'Lime\Reflection\ReflectionFunction',
+                    $func, $file
+                );
                 $filename = $refFunc->getFileName();
                 if (!isset(self::$globalFunctions[$filename])) {
                     self::$globalFunctions[$filename] = array();

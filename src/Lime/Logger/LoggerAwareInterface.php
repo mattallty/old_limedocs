@@ -8,6 +8,7 @@
  * file that was distributed with this source code.
  */
 namespace Lime\Logger;
+
 use Psr\Log\LoggerInterface;
 
 /**
@@ -16,7 +17,8 @@ use Psr\Log\LoggerInterface;
  * Make classes able to log informations by accessing the
  * {\Psr\Log\LoggerInterface}
  */
-interface LoggerAwareInterface extends LoggerInterface {
+interface LoggerAwareInterface extends LoggerInterface
+{
 
     /**
      * Return the {\Psr\Log\LoggerInterface} instance

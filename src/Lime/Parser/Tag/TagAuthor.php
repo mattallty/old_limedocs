@@ -16,7 +16,8 @@ namespace Lime\Parser\Tag;
  * @package Doculizr
  * @subpackage Tags
  */
-class TagAuthor extends AbstractTag {
+class TagAuthor extends AbstractTag
+{
 
     /**
      * {@inheritdoc}

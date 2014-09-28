@@ -23,7 +23,8 @@ use Lime\Core;
  * class, and make use of the {TMetaData} trait.
  *
  */
-class ReflectionFunction extends \ReflectionFunction implements IMetaData, LoggerAwareInterface {
+class ReflectionFunction extends \ReflectionFunction implements IMetaData, LoggerAwareInterface
+{
 
     // use the TMetaData trait
     use TMetaData;

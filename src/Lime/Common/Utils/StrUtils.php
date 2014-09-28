@@ -41,11 +41,14 @@ class StrUtils
     public static function formatDescription($description, $fileInfo, $refObject) {
         $description = preg_replace_callback('/\{([a-z0-9_\\\]+)\}/i',
             function($regs) use($fileInfo, $refObject) {
-
                 $type = NsUtils::scopeElement($regs[1], $fileInfo, $refObject);
                 $url = self::objectTypeToFilepath($type);
-
                 return '<a href="' . $url . '">' . $regs[1] . '</a>';
+            }, $description);
+
+        $description = preg_replace_callback('/`([a-z0-9_\\\]+)`/i',
+            function($regs) use($fileInfo, $refObject) {
+                return '<code>' . $regs[1] . '</code>';
             }, $description);
 
         $markdown = MarkdownExtra::defaultTransform(

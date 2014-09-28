@@ -17,7 +17,8 @@ use Lime\Reflection\ReflectionFactory;
  *
  * This class match one or more documentable elements with a file.
  */
-class FileInfo {
+class FileInfo
+{
 
     /**
      * @var string Filename
@@ -68,18 +69,19 @@ class FileInfo {
     {
         if (count($this->classes)) {
             foreach (array_keys($this->classes) as $class) {
-
                 $this->classes[$class] = ReflectionFactory::factory(
-                                'Lime\Reflection\ReflectionClass',
-                                $class, $this);
+                    'Lime\Reflection\ReflectionClass',
+                    $class, $this
+                );
             }
         }
 
         if (count($this->interfaces)) {
             foreach (array_keys($this->interfaces) as $itf) {
                 $this->interfaces[$itf] = ReflectionFactory::factory(
-                                'Lime\Reflection\ReflectionClass',
-                                $itf, $this);
+                    'Lime\Reflection\ReflectionClass',
+                    $itf, $this
+                );
             }
         }
 
@@ -132,10 +134,12 @@ class FileInfo {
     {
         if (!isset($this->baseUses) || $force === true) {
             $uses = $this->getUses();
-            if(count($uses)) {
-                $this->baseUses = array_combine($uses,
-                        array_map(array($this, 'getUseBase'), $uses));
-            }else{
+            if (count($uses)) {
+                $this->baseUses = array_combine(
+                    $uses,
+                    array_map(array($this, 'getUseBase'), $uses)
+                );
+            } else {
                 $this->baseUses = array();
             }
         }

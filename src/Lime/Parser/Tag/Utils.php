@@ -18,7 +18,8 @@ namespace Lime\Parser\Tag;
  * @package Doculizr
  * @subpackage Tags
  */
-class Utils {
+class Utils
+{
 
     /** @var array tag aliases */
     public static $tagAliases = array(
@@ -41,11 +42,13 @@ class Utils {
                 self::$tagAliases[$tagname] : null;
     }
 
-    public static function addTagAlias($alias, $tag) {
+    public static function addTagAlias($alias, $tag)
+    {
         self::$tagAliases[$alias] = $tag;
     }
 
-    public static function removeTagAlias($alias) {
+    public static function removeTagAlias($alias)
+    {
         unset(self::$tagAliases[$alias]);
     }
 
@@ -201,7 +204,8 @@ class Utils {
     /**
      * @todo Implement method
      */
-    public static function detectFileString($strFile) {
+    public static function detectFileString($strFile)
+    {
         return false;
 
     }

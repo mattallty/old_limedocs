@@ -18,7 +18,8 @@ use Lime\Common\Utils\StrUtils;
  * @package Doculizr
  * @subpackage Tags
  */
-class TagReturn extends AbstractTag {
+class TagReturn extends AbstractTag
+{
 
     /**
      * {@inheritdoc}
@@ -77,7 +78,7 @@ class TagReturn extends AbstractTag {
         // redraw type
         $data['type'] = $this->scopeElement($data['type']);
 
-        if(isset($data['description'])) {
+        if (isset($data['description'])) {
             $data['description'] = preg_replace_callback('/\{([a-z0-9_\\\]+)\}/i', function($regs) {
 
                 $type = $this->scopeElement($regs[1]);

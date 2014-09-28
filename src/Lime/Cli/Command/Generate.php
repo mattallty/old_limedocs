@@ -17,7 +17,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Lime\App\App;
 use Lime\Template\Utils;
 
-
 /**
  * Generates documentation
  *
@@ -45,33 +44,33 @@ class Generate extends Command
                 'Source code directory'
             )
             ->addOption(
-                'output', 'o', InputOption::VALUE_OPTIONAL,
+                'output', 'o', InputOption::VALUE_REQUIRED,
                 'Directory zhere to generate the docu;entation. If not specified, the default is "docs".',
                 './docs'
             )
             ->addOption(
-                'bootstrap', 'b', InputOption::VALUE_OPTIONAL,
+                'bootstrap', 'b', InputOption::VALUE_REQUIRED,
                 'Boostrap file used to autoload/include your classes/dependencies.'
             )
             ->addOption(
-                'introduction', null, InputOption::VALUE_OPTIONAL,
+                'introduction', null, InputOption::VALUE_REQUIRED,
                 'Use the specified file as the introduction page for the generated documentation.'
             )
             ->addOption(
-                'config', 'c', InputOption::VALUE_OPTIONAL,
+                'config', 'c', InputOption::VALUE_REQUIRED,
                 'Configuration file where to take parameters from.',
                 null
             )
             ->addOption(
-                'title', 't', InputOption::VALUE_OPTIONAL,
+                'title', 't', InputOption::VALUE_REQUIRED,
                 'Documentation title.'
             )
             ->addOption(
-                'ignore', 'i', InputOption::VALUE_OPTIONAL,
+                'ignore', 'i', InputOption::VALUE_REQUIRED,
                 'Ignore directories.'
             )
             ->addOption(
-                'finder-cache-duration', null, InputOption::VALUE_OPTIONAL,
+                'finder-cache-duration', null, InputOption::VALUE_REQUIRED,
                 'Finder cache duration. Set to 0 to disable finder caching.'
             )
             ->addOption(
@@ -83,15 +82,19 @@ class Generate extends Command
                 "Don't browse source recursively.", null
             )
             ->addOption(
-                'export-xml', null, InputOption::VALUE_OPTIONAL,
+                'inception', null, InputOption::VALUE_NONE,
+                "Inception mode for Limedocs developers only (when limedocs is used to generate its own doc)."
+            )
+            ->addOption(
+                'export-xml', null, InputOption::VALUE_REQUIRED,
                 'Destination directory where xml documentation will be exported.'
             )
             ->addOption(
-                'html-tags', null, InputOption::VALUE_OPTIONAL,
+                'html-tags', null, InputOption::VALUE_REQUIRED,
                 'Allowed HTML tags in documentation.'
             )
             ->addOption(
-                'no-tpl-cache', null, InputOption::VALUE_OPTIONAL,
+                'without-template-cache', null, InputOption::VALUE_NONE,
                 'Disable Twig templates caching (for template developers).'
             );
     }
@@ -115,10 +118,12 @@ class Generate extends Command
     public function handleShutdown()
     {
         $error = error_get_last();
-        if ($error !== NULL) {
+        if ($error !== null) {
             if ($error['type'] === \E_ERROR) {
-                App::getInstance()->get('logger')->error("Doculizr Error : ", $error['message'],
-                    ' in file ', $error['file'], ' on line ', $error['line']);
+                App::getInstance()->get('logger')->error(
+                    "Doculizr Error : ", $error['message'],
+                    ' in file ', $error['file'], ' on line ', $error['line']
+                );
                 exit(1);
             }
         }
@@ -141,7 +146,8 @@ class Generate extends Command
             $this->setParameter('generate.' . $optName, $optVal);
         }
 
-        $this->setParameter('generate.source-dir',
+        $this->setParameter(
+            'generate.source-dir',
             realpath($input->getArgument('source-dir'))
         );
 
@@ -150,7 +156,7 @@ class Generate extends Command
         set_error_handler(array($this, 'errorHandler'));
         register_shutdown_function(array($this, 'handleShutdown'));
 
-        $app->get('renderer')->init()->render();
+        $app->get('renderer')->render();
     }
 
 }

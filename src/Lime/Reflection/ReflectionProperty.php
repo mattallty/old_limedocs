@@ -22,7 +22,8 @@ use Lime\Common\Utils\StrUtils;
  * {ReflectionProperty} and use the TMetaData trait.
  *
  */
-class ReflectionProperty extends \ReflectionProperty implements IMetaData {
+class ReflectionProperty extends \ReflectionProperty implements IMetaData
+{
 
     use TMetaData;
 
@@ -43,8 +44,10 @@ class ReflectionProperty extends \ReflectionProperty implements IMetaData {
         $this->fileInfo = $fileInfo;
 
         $this->setMetadata(
-                Parser::parseDocComment($this->getDocComment(),
-                        $this->fileInfo, $this)
+            Parser::parseDocComment(
+                $this->getDocComment(),
+                $this->fileInfo, $this
+            )
         );
     }
     /**
@@ -52,7 +55,8 @@ class ReflectionProperty extends \ReflectionProperty implements IMetaData {
      *
      * @return string Type of the property or null if it cannot be guessed.
      */
-    public function getType() {
+    public function getType()
+    {
         $meta = $this->getMetaData();
         return isset($meta['var']['type']) ? $meta['var']['type'] : null;
     }
@@ -62,8 +66,9 @@ class ReflectionProperty extends \ReflectionProperty implements IMetaData {
      *
      * @return mixed Returns  the shortened type or null if it cannot be guessed.
      */
-    public function getShortType() {
-        if(($type = $this->getType())) {
+    public function getShortType()
+    {
+        if (($type = $this->getType())) {
             $parts = explode('\\', $type);
             return array_pop($parts);
         }
@@ -75,7 +80,8 @@ class ReflectionProperty extends \ReflectionProperty implements IMetaData {
      *
      * @return string
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         $meta = $this->getMetaData();
         return (isset($meta['var']['description']) &&
                 !empty($meta['var']['description'])) ?

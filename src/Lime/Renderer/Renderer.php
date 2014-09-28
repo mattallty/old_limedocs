@@ -22,7 +22,8 @@ use Lime\Common\Utils\FsUtils;
 /**
  * Base Renderer class
  */
-abstract class Renderer implements RendererInterface, LoggerAwareInterface, RuntimeParameterAware {
+abstract class Renderer implements RendererInterface, LoggerAwareInterface, RuntimeParameterAware
+{
 
     use TLogger;
     use TRuntimeParameter;
@@ -38,13 +39,15 @@ abstract class Renderer implements RendererInterface, LoggerAwareInterface, Runt
     final public function __construct(TemplateInterface &$template)
     {
         $this->template = $template;
+        $this->prepareFilesystem();
     }
 
     /**
      * Gets the template instance
      * @return ITemplate
      */
-    final public function getTemplate() {
+    final public function getTemplate()
+    {
         return $this->template;
     }
 
@@ -54,11 +57,12 @@ abstract class Renderer implements RendererInterface, LoggerAwareInterface, Runt
      * @param string $part Documentation part
      * @return string Path
      */
-    public function getDocPath($part = null) {
-        if($part === null) {
+    public function getDocPath($part = null)
+    {
+        if ($part === null) {
             return $this->getOutputDir() . DS;
         }
-        if(is_array($part)) {
+        if (is_array($part)) {
             $part = implode(DS, $part);
         }
         return $this->getOutputDir() . DS . $part . DS;
@@ -70,11 +74,11 @@ abstract class Renderer implements RendererInterface, LoggerAwareInterface, Runt
      */
     public function prepareFilesystem()
     {
-        $this->info('Preparing filesystem');
+        $this->debug('Preparing filesystem');
 
         $output_dir = $this->getOutputDir();
 
-        if(!is_string($output_dir) || empty($output_dir)) {
+        if (!is_string($output_dir) || empty($output_dir)) {
             throw new \RuntimeException('Invalid output directory.');
         }
 
@@ -85,7 +89,7 @@ abstract class Renderer implements RendererInterface, LoggerAwareInterface, Runt
         $oldumask = umask(0);
 
         // recreate docs dir
-        $this->info('Creating directory ' . $output_dir);
+        $this->debug('Creating directory ' . $output_dir);
         mkdir($output_dir, 0777, true);
 
         umask($oldumask);

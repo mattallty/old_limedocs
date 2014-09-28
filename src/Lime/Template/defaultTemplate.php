@@ -12,28 +12,36 @@ namespace Lime\Template;
 /**
  * Main templating class
  */
-class DefaultTemplate extends Template {
+class DefaultTemplate extends Template
+{
 
-    public function output() {
+    public function output()
+    {
 
     }
 
-    public function getIndexFile() {
+    public function getIndexFile()
+    {
         return 'index.twig.html';
     }
-    public function getNsFile() {
+    public function getNsFile()
+    {
         return 'ns.twig.html';
     }
-    public function getClassFile() {
+    public function getClassFile()
+    {
         return 'class.twig.html';
     }
-    public function getInterfaceFile() {
+    public function getInterfaceFile()
+    {
         return 'interface.twig.html';
     }
-    public function getTraitFile() {
+    public function getTraitFile()
+    {
         return 'trait.twig.html';
     }
-    public function getMethodFile() {
+    public function getMethodFile()
+    {
         return 'method.twig.html';
     }
 

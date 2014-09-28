@@ -5,14 +5,17 @@ parameters:
     generate.title: "Documentation"
 
     generate.bootstrap:  ""
-    generate.extensions:       "php|inc"
+    generate.extensions: "php|inc"
     generate.ignore:     ".git/|.svn/|vendor/"
     generate.doc-index:  "@@mainpage,MANUAL,MAINPAGE,README"
     generate.examples:   "examples"
+    generate.inception: false
 
     generate.show-deprecated: true
     generate.show-protected-members: false
     generate.show-private-members: false
+    generate.show-class-source: true
+    generate.show-method-source: true
 
     generate.recursive: true
     generate.follow-symlinks: true

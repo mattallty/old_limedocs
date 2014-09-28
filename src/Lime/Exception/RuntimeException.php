@@ -17,6 +17,7 @@ namespace Lime\Exception;
  * @license http://doculizr.allty.com/license MIT
  * @link http://doculizr.allty.com Doculizr Website
  */
-class RuntimeException extends \RuntimeException {
+class RuntimeException extends \RuntimeException
+{
 
 }

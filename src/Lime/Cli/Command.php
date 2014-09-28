@@ -8,8 +8,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use \Symfony\Component\Console\Command\Command as SymfonyCommand;
 
-
-abstract class Command extends SymfonyCommand implements RuntimeParameterAware {
+abstract class Command extends SymfonyCommand implements RuntimeParameterAware
+{
 
     private function setupLogger(OutputInterface $output)
     {

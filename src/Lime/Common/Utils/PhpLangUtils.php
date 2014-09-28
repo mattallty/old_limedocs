@@ -18,14 +18,13 @@ class PhpLangUtils {
     /**
      * @var array PHP internal functions documentation
      */
-    static $quickref = array();
+    static $quickref;
 
     const QUICKREF_URL = 'https://raw.githubusercontent.com/salathe/phpdoc-base/master/quickref.txt';
 
-
-    public function __construct()
+    private static function buildQuickRef()
     {
-        $handle = fopen(LIMEDOCS_ROOT_DIR . DS . 'config' . DS . 'quickref.txt', 'r');
+        $handle = fopen(__DIR__ . '/../../../../config' . DS . 'quickref.txt', 'r');
         while($line = fgets($handle)) {
             list($command, $description) = explode("-", $line, 2);
             self::$quickref[trim($command)] = trim($description);
@@ -36,9 +35,13 @@ class PhpLangUtils {
      * Gets a quick refrence, ie description, of a *native* PHP function/method.
      * @param string $function Function or method  name
      * @param string $className Class name in the case of a method.
-     * @return string Returns the description {string} or {null} if the function cannot be found.
+     * @return string Returns the description {string} or `null` if the function cannot be found.
      */
-    public static function getQuickRef($function, $className = '') {
+    public static function getQuickRef($function, $className = '')
+    {
+        if(true === is_null(self::$quickref)) {
+            self::buildQuickRef();
+        }
         $lookup = (empty($className)) ? $function : $className.'::'.$function;
         return isset(self::$quickref[$lookup]) ? self::$quickref[$lookup] : null;
     }
@@ -63,6 +66,7 @@ class PhpLangUtils {
             'mixed',
             'object',
             'mixed',
+            'null',
             'callable',
             'resource',
             'stdClass'

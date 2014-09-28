@@ -15,7 +15,8 @@ namespace Lime\App;
  * Make classes able to log informations by accessing the
  * {\Psr\Log\LoggerInterface}
  */
-interface RuntimeParameterAware {
+interface RuntimeParameterAware
+{
 
     public function getParameter($name);
     public function setParameter($name, $value);

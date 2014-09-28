@@ -13,7 +13,8 @@ use Doctrine\Common\Cache\Cache as DoctrineCacheInterface;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\ApcCache;
 
-class Cache {
+class Cache
+{
 
     /**
      * @var \Doctrine\Common\Cache\Cache
@@ -23,14 +24,15 @@ class Cache {
     /**
      * @param DoctrineCacheInterface $provider
      */
-    public function __construct(DoctrineCacheInterface $provider = null) {
+    public function __construct(DoctrineCacheInterface $provider = null)
+    {
 
         // take the provided provider :D
         if (false === is_null($provider)) {
             $this->provider = $provider;
 
         // Or take APC if it is enable in cli-mode
-        } elseif(function_exists('apc_store') && true === (bool) ini_get('apc.enable_cli')) {
+        } elseif (function_exists('apc_store') && true === (bool) ini_get('apc.enable_cli')) {
             $this->provider = new ApcCache();
 
         // Or use a simple array
@@ -46,7 +48,8 @@ class Cache {
      * @param array $args Call arguments
      * @return mixed
      */
-    public function __call($method, $args) {
+    public function __call($method, $args)
+    {
         return call_user_func_array(array($this->provider, $method), $args);
     }
 }

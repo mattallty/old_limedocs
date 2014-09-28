@@ -13,7 +13,8 @@ namespace Lime\Template;
  * Templating asbtract class
  *
  */
-abstract class Template implements TemplateInterface {
+abstract class Template implements TemplateInterface
+{
 
     /**
      * @var array Template informations
@@ -24,20 +25,23 @@ abstract class Template implements TemplateInterface {
 
     public function __construct(array $tpl_infos)
     {
-        foreach($tpl_infos as $ns => $props) {
+        foreach ($tpl_infos as $ns => $props) {
             $this->{$ns} = $props;
         }
     }
 
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->getInfos('version');
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->getInfos('name');
     }
 
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->getInfos('author');
     }
 

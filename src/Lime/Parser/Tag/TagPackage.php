@@ -18,7 +18,8 @@ use \Doculizr\Core;
  * @package Doculizr
  * @subpackage Tags
  */
-class TagPackage extends AbstractTag {
+class TagPackage extends AbstractTag
+{
 
     /**
      * {@inheritdoc}

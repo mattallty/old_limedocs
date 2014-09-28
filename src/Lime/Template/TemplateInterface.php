@@ -12,7 +12,8 @@ namespace Lime\Template;
 /**
  * Interface for all templating classes
  */
-interface TemplateInterface {
+interface TemplateInterface
+{
     public function __construct(array $tpl_infos);
     public function output();
     public function getInfos($info = null);

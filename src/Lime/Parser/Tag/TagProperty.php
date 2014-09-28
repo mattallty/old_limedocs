@@ -20,7 +20,8 @@ use Lime\Reflection\ReflectionMethod;
  * @package Doculizr
  * @subpackage Tags
  */
-class TagProperty extends AbstractTag {
+class TagProperty extends AbstractTag
+{
 
     /**
      * {@inheritdoc}
@@ -70,15 +71,15 @@ class TagProperty extends AbstractTag {
         );
 
         foreach ($formats as $key => $format) {
-
             if (preg_match($format, $value, $regs)) {
-
                 if ($key) {
-                    $this->warning('Malformed @property tag : "' . $value
-                            . '" for function/method ' .
-                            $this->getRefObject()->getName() . '() in file ' .
-                            $this->getFileInfo()->getFilename() . ':' .
-                            $this->getRefObject()->getStartLine());
+                    $this->warning(
+                        'Malformed @property tag : "' . $value
+                        . '" for function/method ' .
+                        $this->getRefObject()->getName() . '() in file ' .
+                        $this->getFileInfo()->getFilename() . ':' .
+                        $this->getRefObject()->getStartLine()
+                    );
                 }
 
                 $regs['type'] = NsUtils::stripLeadingBackslash($regs['type']);
@@ -102,11 +103,12 @@ class TagProperty extends AbstractTag {
 
         if ($refObj instanceof ReflectionFunction === false &&
                 $refObj instanceof ReflectionMethod === false) {
-
             $this->error(
-                    sprintf('@property tag is not allowed in %s:%s',
-                            $this->getFileInfo()->getFilename(),
-                            $refObj->getStartLine())
+                sprintf(
+                    '@property tag is not allowed in %s:%s',
+                    $this->getFileInfo()->getFilename(),
+                    $refObj->getStartLine()
+                )
             );
 
             return false;

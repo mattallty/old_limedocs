@@ -21,7 +21,8 @@ use Lime\Logger\TLogger;
  * @package Doculizr
  * @subpackage Tags
  */
-abstract class AbstractTag implements ITag, LoggerAwareInterface {
+abstract class AbstractTag implements ITag, LoggerAwareInterface
+{
 
     use TLogger;
 
@@ -46,9 +47,12 @@ abstract class AbstractTag implements ITag, LoggerAwareInterface {
      * @param \Reflector $refObject Related reflection object
      * @param string $tag tag name
      */
-    final public function __construct($tagValue, FileInfo $fileInfo,
-            \Reflector $refObject, $tag)
-    {
+    final public function __construct(
+        $tagValue,
+        FileInfo $fileInfo,
+        \Reflector $refObject,
+        $tag
+) {
         $this->tag = strtolower($tag);
         $this->fileInfo = $fileInfo;
         $this->refObject = $refObject;
@@ -91,12 +95,14 @@ abstract class AbstractTag implements ITag, LoggerAwareInterface {
     protected function filterNumericIndexes(&$regs)
     {
         reset($regs);
-        $filtered = array_filter($regs,
-                function () use (&$regs) {
+        $filtered = array_filter(
+            $regs,
+            function () use (&$regs) {
                     $ret = !is_numeric(key($regs));
                     next($regs);
                     return $ret;
-                });
+            }
+        );
 
         return $filtered;
     }
@@ -115,7 +121,8 @@ abstract class AbstractTag implements ITag, LoggerAwareInterface {
      * Returns tag label
      * @return string Tag label
      */
-    public function getLabel() {
+    public function getLabel()
+    {
         return 'unknown';
     }
 
@@ -181,20 +188,20 @@ abstract class AbstractTag implements ITag, LoggerAwareInterface {
         $elements = explode('|', $element);
 
         foreach ($elements as $typeIndex => $type) {
-
             if (in_array($type, array('$this', 'self', 'this'))) {
                 $elements[$typeIndex] = $this->getRefObject()->class;
 
             } elseif (!$this->isNativeType($type) && !$this->isFullyScoped($type)) {
-
                 $typeTopLevel = $this->getNamespaceTopLevel($type);
 
                 if (false !== $usesIndex = array_search($typeTopLevel, $uses)) {
-                    $elements[$typeIndex] = substr($usesIndex, 0,
-                                    -strlen($typeTopLevel)) . $type;
+                    $elements[$typeIndex] = substr(
+                        $usesIndex, 0,
+                        -strlen($typeTopLevel)
+                    ) . $type;
                 } else {
                     $ns = $this->getFileInfo()->getNamespaces();
-                    if(count($ns)) {
+                    if (count($ns)) {
                         $elements[$typeIndex] = $ns[0].'\\'.$typeTopLevel;
                     }
                 }

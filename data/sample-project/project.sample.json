@@ -1,7 +1,0 @@
-{
-    "title": "My Project Docs",
-    "source": "./src/",
-    "target": "./src/docs",
-    "template-dir": "./data/templates/default"
-
-}

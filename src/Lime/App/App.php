@@ -36,12 +36,13 @@ class App
     private function __construct()
     {
         $this->container = new ContainerBuilder();
-        $loader = new YamlFileLoader($this->container, new FileLocator(LIMEDOCS_ROOT_DIR . DS . 'config'));
+        $loader = new YamlFileLoader($this->container, new FileLocator(__DIR__ . '/../../../config'));
         $loader->load('config.yml');
         $loader->load('services.yml');
     }
 
-    public function getContainer() {
+    public function getContainer()
+    {
         return $this->container;
     }
 
@@ -50,12 +51,14 @@ class App
      *
      * @return Finder
      */
-    public function getFinder() {
+    public function getFinder()
+    {
         return $this->get('finder');
     }
 
 
-    public function __call($method, $args) {
+    public function __call($method, $args)
+    {
         return call_user_func_array(array($this->container, $method), $args);
     }
 

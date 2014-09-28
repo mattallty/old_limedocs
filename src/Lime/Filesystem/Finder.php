@@ -23,7 +23,8 @@ use Lime\Logger\TLogger;
  * based on paths, extensions, ignore lists, etc.
  *
  */
-class Finder implements LoggerAwareInterface, RuntimeParameterAware {
+class Finder implements LoggerAwareInterface, RuntimeParameterAware
+{
 
 
     use TLogger;
@@ -49,7 +50,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      *
      * @param string $sourceDir Base directory to search in
      */
-    final public function __construct($sourceDir) {
+    final public function __construct($sourceDir)
+    {
 
         $this->debug('Initializing ' . get_called_class());
 
@@ -70,8 +72,11 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
         }
 
         // Redraw 'extensions' to a regular expression
-        $this->setParameter('generate.extensions', implode('|',
-            array_map('preg_quote', explode('|', $extensions)))
+        $this->setParameter(
+            'generate.extensions', implode(
+                '|',
+                array_map('preg_quote', explode('|', $extensions))
+            )
         );
 
         // If needed, redraw 'ignore' to a regular expression
@@ -102,9 +107,11 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
             ($this->fileset = $cache->fetch($cacheKey))) {
             $this->debug('Finder fileset taken from cache');
             return $this->fileset;
-        }else{
-            $this->debug('Finder is going to fetch a fresh fileset from filesystem. '.
-                '(without-finder-cache='.$this->getParameter('generate.without-finder-cache').')');
+        } else {
+            $this->debug(
+                'Finder is going to fetch a fresh fileset from filesystem. '.
+                '(without-finder-cache='.$this->getParameter('generate.without-finder-cache').')'
+            );
         }
 
         // Do not return '.' and '..' entries
@@ -122,7 +129,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
         $ignore = $this->getParameter('generate.ignore');
 
         $dirIterator = new \RecursiveDirectoryIterator($this->sourceDir, $flags);
-        $iterator = new \RecursiveIteratorIterator($dirIterator,
+        $iterator = new \RecursiveIteratorIterator(
+            $dirIterator,
             \RecursiveIteratorIterator::SELF_FIRST
         );
 
@@ -132,7 +140,6 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
         }
 
         foreach ($iterator as $file) {
-
             if ($file->isDir()) {
                 continue;
             }
@@ -149,7 +156,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
             }
         }
 
-        $cache->save($cacheKey, $this->fileset,
+        $cache->save(
+            $cacheKey, $this->fileset,
             $this->getParameter('generate.finder-cache-ttl')
         );
 
@@ -161,7 +169,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      *
      * @return array fileset of matching files
      */
-    final public function getFileset() {
+    final public function getFileset()
+    {
         return $this->fileset;
     }
 
@@ -171,7 +180,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      * @param string $filepath File path to search for
      * @return mixed Returns a {DoculizrFileInfo} or null
      */
-    final public function getFileFromFileset($filepath) {
+    final public function getFileFromFileset($filepath)
+    {
         return isset($this->fileset[$filepath]) ?
                 $this->fileset[$filepath] : null;
     }
@@ -180,7 +190,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      * @deprecated
      * @param type $namespaces
      */
-    final public function registerNamespaces($namespaces) {
+    final public function registerNamespaces($namespaces)
+    {
         foreach ($namespaces as $ns) {
             if (!array_key_exists($ns, $this->namespaces)) {
                 $this->namespaces[$ns] = array();
@@ -193,13 +204,15 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      *
      * @return array
      */
-    final public function getInterfacesInFileset() {
+    final public function getInterfacesInFileset()
+    {
         $interfaces = array();
         /* @var $fileInfo \Lime\Filesystem\FileInfo */
         foreach ($this->fileset as $fileInfo) {
             $interfaces = array_merge($interfaces, $fileInfo->getInterfaces());
         }
-        return array_unique($interfaces);;
+        return array_unique($interfaces);
+        ;
     }
 
     /**
@@ -207,7 +220,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      *
      * @return array
      */
-    final public function getClassesInFileset() {
+    final public function getClassesInFileset()
+    {
         $classes = array();
         /* @var $fileInfo \Lime\Filesystem\FileInfo */
         foreach ($this->fileset as $fileInfo) {
@@ -221,7 +235,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      *
      * @return array
      */
-    final public function getNamespacesInFileset() {
+    final public function getNamespacesInFileset()
+    {
         $ns = array();
         /* @var $fileInfo \Lime\Filesystem\FileInfo */
         foreach ($this->fileset as $fileInfo) {
@@ -237,7 +252,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      * @param FileInfo $fileinfo new file information
      * @return $this
      */
-    final public function updateFileInfo($pathname, FileInfo $fileinfo) {
+    final public function updateFileInfo($pathname, FileInfo $fileinfo)
+    {
         $this->fileset[$pathname] = $fileinfo;
         return $this;
     }
@@ -248,7 +264,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      *
      * @return array
      */
-    function getDocumentationTree() {
+    function getDocumentationTree()
+    {
         return $this->namespaces;
     }
 
@@ -259,9 +276,10 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
      * @return void
      * @changelog 1.1 Added 'hasTraits' table key.
      */
-    final public function analyseFileset() {
+    final public function analyseFileset()
+    {
         foreach ($this->getFileset() as $file => $fileInfo) {
-            $this->info("Parsing file $file");
+            $this->debug("Parsing file $file");
             $fileInfo->analyse();
         }
         $this->namespaces['global'] = array(
@@ -270,7 +288,6 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
             'hasTraits' => false
         );
         foreach ($this->fileset as $fileInfo) {
-
             foreach ($fileInfo->getNamespaces() as $ns) {
                 if (!array_key_exists($ns, $this->namespaces)) {
                     $this->namespaces[$ns] = array(
@@ -286,7 +303,7 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware {
                     $ns = 'global';
                 }
                 $this->namespaces[$ns]['classes'][$cls->getShortName()] = $cls;
-                if($cls->isTrait()) {
+                if ($cls->isTrait()) {
                     $this->namespaces[$ns]['hasTraits'] = true;
                 }
             }

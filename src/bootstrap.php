@@ -8,6 +8,10 @@
  * file that was distributed with this source code.
  */
 
+if(defined('LIMEDOCS_BOOTSTRAPPED')) {
+    return; // Already bootstrapped
+}
+
 $tz = ini_get('date.timezone');
 
 if (!$tz or empty($tz)) {
@@ -15,14 +19,17 @@ if (!$tz or empty($tz)) {
 }
 
 define('DS', DIRECTORY_SEPARATOR);
-define('LIMEDOCS_ROOT_DIR', realpath(dirname(__FILE__). DS . '..'));
+define('LIMEDOCS_BOOTSTRAPPED', true);
 
-function includeIfExists($file)
-{
-    return file_exists($file) ? include $file : false;
+if(!function_exists('limedocs_includeIfExists')) {
+    function limedocs_includeIfExists($file)
+    {
+        return file_exists($file) ? include $file : false;
+    }
 }
 
-if ((!$loader = includeIfExists(__DIR__.'/../vendor/autoload.php')) && (!$loader = includeIfExists(__DIR__.'/../../../autoload.php'))) {
+if ((!$loader = limedocs_includeIfExists(__DIR__.'/../vendor/autoload.php'))
+    && (!$loader = limedocs_includeIfExists(__DIR__.'/../../../autoload.php'))) {
     echo 'You must set up the project dependencies, run the following commands:'.PHP_EOL.
         'curl -sS https://getcomposer.org/installer | php'.PHP_EOL.
         'php composer.phar install'.PHP_EOL;

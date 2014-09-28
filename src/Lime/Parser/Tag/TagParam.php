@@ -14,14 +14,14 @@ use Lime\Common\Utils\NsUtils;
 use Lime\Reflection\ReflectionFunction;
 use Lime\Reflection\ReflectionMethod;
 
-
 /**
  * The <code>param</code> Tag
  *
  * @package Doculizr
  * @subpackage Tags
  */
-class TagParam extends AbstractTag {
+class TagParam extends AbstractTag
+{
 
     /**
      * {@inheritdoc}
@@ -55,7 +55,7 @@ class TagParam extends AbstractTag {
      */
     private function parseMultiFormat($value)
     {
-        $type = '(?<type>[a-z0-9\\\|]+)';
+        $type = '(?<type>[a-z0-9\\\|_]+)';
         $name = '(?<name>[a-z0-9_$]+)';
         $desc = '(?<description>.*)';
         $spaces = '[\\s]+';
@@ -72,16 +72,17 @@ class TagParam extends AbstractTag {
         );
 
         foreach ($formats as $key => $format) {
-
             if (preg_match($format, $value, $regs)) {
-
+                /*
                 if ($key) {
-                    $this->notice('Malformed @param tag : "' . $value
-                            . '" for function/method ' .
-                            $this->getRefObject()->getName() . '() in file ' .
-                            $this->getFileInfo()->getFilename() . ':' .
-                            $this->getRefObject()->getStartLine());
-                }
+                    $this->notice(
+                        'Malformed @param tag : "' . $value
+                        . '" for function/method ' .
+                        $this->getRefObject()->getName() . '() in file ' .
+                        $this->getFileInfo()->getFilename() . ':' .
+                        $this->getRefObject()->getStartLine()
+                    );
+                }*/
 
                 $regs['type'] = NsUtils::stripLeadingBackslash($regs['type']);
 
@@ -103,11 +104,12 @@ class TagParam extends AbstractTag {
 
         if ($refObj instanceof ReflectionFunction === false &&
                 $refObj instanceof ReflectionMethod === false) {
-
             $this->error(
-                    sprintf('@param tag is not allowed in %s:%s',
-                            $this->getFileInfo()->getFilename(),
-                            $refObj->getStartLine())
+                sprintf(
+                    '@param tag is not allowed in %s:%s',
+                    $this->getFileInfo()->getFilename(),
+                    $refObj->getStartLine()
+                )
             );
 
             return false;

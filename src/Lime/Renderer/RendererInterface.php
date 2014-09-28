@@ -25,16 +25,11 @@ use Lime\Template\TemplateInterface;
  * Renderer interface
  *
  */
-interface RendererInterface {
+interface RendererInterface
+{
 
     public function __construct(TemplateInterface &$template);
 
-    /**
-     * Initializer
-     *
-     * This method must return $this just like a constructor.
-     */
-    public function init();
     /**
      * Render documentation
      *

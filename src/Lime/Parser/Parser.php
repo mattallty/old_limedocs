@@ -24,7 +24,8 @@ use Lime\Parser\Tag\Utils as TagUtils;
 /**
  * Parser
  */
-class Parser implements LoggerAwareInterface, RuntimeParameterAware {
+class Parser implements LoggerAwareInterface, RuntimeParameterAware
+{
 
 
     use TLogger;
@@ -104,9 +105,8 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware {
         $infos = array();
 
         foreach ($lines as $line) {
-
             $line = ltrim($line, '\t /*');
-            if(substr($line, -2, 2) === '*/') {
+            if (substr($line, -2, 2) === '*/') {
                 $line = substr($line, 0, -2);
             }
 
@@ -123,7 +123,7 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware {
                     $tags[] = array('name' => $regs[1],
                         'value' => empty($regs[2]) ? true : $regs[2]);
 
-                    if($regs[1] === 'inheritdoc') {
+                    if ($regs[1] === 'inheritdoc') {
                         $infos[$regs[1]] = true;
                     }
                 }
@@ -147,16 +147,16 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware {
         $logger = App::getInstance()->get('logger');
 
         foreach ($tags as $tagProps) {
-
-            if (($obj = TagUtils::factory($tagProps['name'], $tagProps['value'],
-                            $fileInfo, $refObject))) {
-
+            if (($obj = TagUtils::factory(
+                $tagProps['name'], $tagProps['value'],
+                $fileInfo, $refObject
+))) {
                 $tagName = $obj->getTag();
                 $parsedData = $obj->getParsedData();
 
                 $parsedTags[] = array($tagName => $parsedData);
 
-                if(!isset($infos[$tagName])) {
+                if (!isset($infos[$tagName])) {
                     $infos[$tagName] = $parsedData;
                 }
 
@@ -183,12 +183,12 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware {
      */
     protected function parseFile(FileInfo $fileObject)
     {
-        // start output buferring in case this file outputs something
-        ob_start();
-        // inlcude this file once
-        include_once ($fileObject->getFilename());
-        // disable O.B.
-        ob_end_clean();
+        if (!$this->getParameter('generate.inception'))
+        {
+            ob_start();
+            include_once ($fileObject->getFilename());
+            ob_end_clean();
+        }
 
         // get all tokens in file
         $tokens = token_get_all(file_get_contents($fileObject->getFilename()));
@@ -204,8 +204,14 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware {
 
 
         $tokensCallbacks = array(
-            self::SEMICOLON => function() use(&$nsFlag, &$useFlag, &$useTmp, &$nsTmp,
-            &$uses, &$namespaces) {
+            self::SEMICOLON => function() use (
+                &$nsFlag,
+                &$useFlag,
+                &$useTmp,
+                &$nsTmp,
+                &$uses,
+                &$namespaces
+) {
                 if ($nsFlag) {
                     $nsFlag = false;
                     $namespaces[] = (string) $nsTmp;
@@ -215,33 +221,41 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware {
                 }
             },
             // this is a namespace word, set the ns flag and nsTmp string
-            T_NAMESPACE => function() use(&$nsFlag, &$nsTmp) {
+            T_NAMESPACE => function() use (&$nsFlag, &$nsTmp) {
                 $nsFlag = true;
                 $nsTmp = '\\';
             },
-            T_CLASS => function() use(&$classFlag, &$topLevelFlag) {
+            T_CLASS => function() use (&$classFlag, &$topLevelFlag) {
                 $topLevelFlag = $classFlag = true;
             },
-            T_TRAIT => function() use(&$classFlag, &$topLevelFlag) {
+            T_TRAIT => function() use (&$classFlag, &$topLevelFlag) {
                 $topLevelFlag = $classFlag = true;
             },
-            T_INTERFACE => function() use(&$interfaceFlag, &$topLevelFlag) {
+            T_INTERFACE => function() use (&$interfaceFlag, &$topLevelFlag) {
                 $topLevelFlag = $interfaceFlag = true;
             },
-            T_STRING => function($token) use(&$interfaceFlag, &$interfaces,
-            &$namespaces, &$classFlag, &$classes, &$nsFlag, &$nsTmp,
-            &$useTmp, &$useFlag) {
+            T_STRING => function($token) use (
+                &$interfaceFlag,
+                &$interfaces,
+                &$namespaces,
+                &$classFlag,
+                &$classes,
+                &$nsFlag,
+                &$nsTmp,
+                &$useTmp,
+                &$useFlag
+) {
                 if ($interfaceFlag) {
                     $currentNs = end($namespaces);
                     $interfaces[] = $currentNs . '\\' . $token[1];
                     $interfaceFlag = false;
-                } else if ($classFlag) {
+                } elseif ($classFlag) {
                     $currentNs = end($namespaces);
                     $classes[] = $currentNs . '\\' . $token[1];
                     $classFlag = false;
                 } elseif ($nsFlag) {
                     $nsTmp .= trim($token[1]);
-                } else if ($useFlag) {
+                } elseif ($useFlag) {
                     $useTmp .= trim($token[1]);
                 }
             },
@@ -252,8 +266,12 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware {
                 $useFlag = true;
                 $useTmp = '';
             },
-            '___default___' => function($token) use(&$nsFlag, &$useFlag,
-            &$useTmp, &$nsTmp) {
+            '___default___' => function($token) use (
+                &$nsFlag,
+                &$useFlag,
+                &$useTmp,
+                &$nsTmp
+) {
                 if ($nsFlag) {
                     $nsTmp .= trim($token[1]);
                 } elseif ($useFlag) {

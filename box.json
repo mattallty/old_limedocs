@@ -1,0 +1,29 @@
+{
+    "chmod": "0755",
+    "directories": [
+        "src",
+        "config",
+        "data"
+    ],
+    "compression" : "GZ",
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": [
+                "Tests",
+                "Test",
+                "bin",
+                "pdepend",
+                "phpmd",
+                "phpunit",
+                "php_codesniffer"
+            ],
+            "in": "vendor"
+        }
+    ],
+    "files": ["LICENSE"],
+    "main": "bin/limedocs",
+    "git-tag": "package_version",
+    "output": "build/limedocs.phar",
+    "stub": true
+}

@@ -13,7 +13,8 @@ namespace Lime\Parser\Tag;
 /**
  * The `Changelog` Tag
  */
-class TagChangelog extends AbstractTag {
+class TagChangelog extends AbstractTag
+{
 
     /**
      * {@inheritdoc}

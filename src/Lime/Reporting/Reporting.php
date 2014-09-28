@@ -10,11 +10,11 @@
 
 namespace Lime\Reporting;
 
-
 /**
  * Reporting class
  */
-class Reporting {
+class Reporting
+{
 
     protected $records = array();
 

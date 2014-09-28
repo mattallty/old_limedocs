@@ -9,10 +9,12 @@
  */
 
 namespace Lime\Parser\Tag;
+
 /**
  * Interface for all tags
  */
-interface ITag {
+interface ITag
+{
 
     /**
      * Get the tag description
@@ -78,5 +80,3 @@ interface ITag {
      */
     public function getParsedData();
 }
-
-?>

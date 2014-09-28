@@ -11,13 +11,15 @@
 namespace Lime\Parser\Tag;
 
 use Lime\Common\Utils\NsUtils;
+
 /**
  * The `var` Tag
  *
  * @package Doculizr
  * @subpackage Tags
  */
-class TagVar extends AbstractTag {
+class TagVar extends AbstractTag
+{
 
     /**
      * {@inheritdoc}

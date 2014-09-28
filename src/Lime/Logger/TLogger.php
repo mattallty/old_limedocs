@@ -8,7 +8,8 @@ use Psr\Log\LoggerInterface;
 /**
  * Logger Trait for classes implementing the {LoggerAware} interface
  */
-trait TLogger {
+trait TLogger
+{
 
     /**
      * Get Logger
@@ -29,8 +30,10 @@ trait TLogger {
      */
     public function emergency($message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $message,
-            $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $message,
+            $context
+        );
     }
 
     /**
@@ -45,8 +48,10 @@ trait TLogger {
      */
     public function alert($message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $message,
-            $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $message,
+            $context
+        );
     }
 
     /**
@@ -60,8 +65,10 @@ trait TLogger {
      */
     public function critical($message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $message,
-            $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $message,
+            $context
+        );
     }
 
     /**
@@ -74,8 +81,10 @@ trait TLogger {
      */
     public function error($message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $message,
-            $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $message,
+            $context
+        );
     }
 
     /**
@@ -90,8 +99,10 @@ trait TLogger {
      */
     public function warning($message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $message,
-            $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $message,
+            $context
+        );
     }
 
     /**
@@ -103,8 +114,10 @@ trait TLogger {
      */
     public function notice($message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $message,
-            $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $message,
+            $context
+        );
     }
 
     /**
@@ -118,8 +131,10 @@ trait TLogger {
      */
     public function info($message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $message,
-            $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $message,
+            $context
+        );
     }
 
     /**
@@ -131,8 +146,10 @@ trait TLogger {
      */
     public function debug($message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $message,
-            $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $message,
+            $context
+        );
     }
 
     /**
@@ -145,8 +162,10 @@ trait TLogger {
      */
     public function log($level, $message, array $context = array())
     {
-        return call_user_func(array($this->getLogger(), __FUNCTION__), $level,
-            $message, $context);
+        return call_user_func(
+            array($this->getLogger(), __FUNCTION__), $level,
+            $message, $context
+        );
     }
 
 

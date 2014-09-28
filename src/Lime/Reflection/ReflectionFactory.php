@@ -9,19 +9,22 @@
  */
 namespace Lime\Reflection;
 
+use Lime\Filesystem\FileInfo;
 /**
  * Reflection Factory
  *
  */
-class ReflectionFactory {
+class ReflectionFactory
+{
     protected static $factoryCache = array();
 
-    public static function &factory(/* $className, $arg ... $argN */)
+    public static function &factory()
     {
         $args = func_get_args();
         $className = array_shift($args);
-        $key = md5($className . json_encode($args));
-        
+
+        $key = md5($className . json_encode(array_slice($args, 0, -1)));
+
         if (!isset(self::$factoryCache[$key])) {
             $class = new \ReflectionClass($className);
             self::$factoryCache[$key] = $class->newInstanceArgs($args);
@@ -30,7 +33,7 @@ class ReflectionFactory {
         return self::$factoryCache[$key];
     }
 
-    public static function register(/* $object, $className, $arg ... $argN */)
+    public static function register()
     {
         $args = func_get_args();
         $object = array_shift($args);

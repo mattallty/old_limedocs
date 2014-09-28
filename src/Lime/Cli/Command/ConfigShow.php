@@ -18,7 +18,8 @@ use Lime\App\App;
 /**
  * Class handling configuration display
  */
-class ConfigShow extends Command {
+class ConfigShow extends Command
+{
 
 
     use TRuntimeParameter;

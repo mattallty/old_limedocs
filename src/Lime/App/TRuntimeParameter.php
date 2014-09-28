@@ -42,7 +42,7 @@ trait TRuntimeParameter
         $filtered = [];
         $nslen = strlen($namespace);
 
-        foreach($params as $key => $value) {
+        foreach ($params as $key => $value) {
             if (substr($key, 0, $nslen) == $namespace) {
                 $filtered[substr($key, $nslen + 1)] = $value;
             }

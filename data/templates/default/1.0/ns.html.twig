@@ -1,34 +1,4 @@
 {% extends "base.html.twig" %}
-{% block sidebar %}
-    <ul class="namespaces">
-    {% for item in namespaces %}
-            {% set cleanNs = item|replace({"\\" : "."}) %}
-            {% set nsUrl = "#{cleanNs|lower}.#{meta.fileExt}" %}
-            {% if tmp.ns != item %}
-                <li><a href="{{nsUrl}}">{{cleanNs}}</a></li>
-            {% else %}
-                <hr />
-                <li class="active">{{cleanNs}}</li>
-                <ul class="classes">
-                {% for itemc in tmp.nsInfos.classes %}
-                    {% set cleanCls = itemc.name|replace({"\\" : "."}) %}
-                    {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
-                    <li{% if itemc.isTrait() %} class="trait"{% elseif itemc.isAbstract() %} class="abstract"{% endif %}><a href="{{clsUrl}}">{{itemc.getShortName()}}</a></li>
-                {% endfor %}
-                </ul>
-                <ul class="interfaces">
-                {% for itemc in tmp.nsInfos.interfaces %}
-                    {% set cleanCls = itemc.name|replace({"\\" : "."}) %}
-                    {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
-                    <li><a href="{{clsUrl}}">{{itemc.getShortName()}}</a></li>
-                {% endfor %}
-                </ul>
-                <hr />
-            {% endif %}
-    {% endfor %}
-    </ul>
-{% endblock %}
-
 
 {% block content %}
     <h1><span class="class-ns">Namespace</span>{{tmp.ns}}</h1>
@@ -37,9 +7,7 @@
             <h2>Interfaces</h2>
             <ul class="interfaces">
             {% for item in tmp.nsInfos.interfaces %}
-                {% set cleanCls = item.name|replace({"\\" : "."}) %}
-                {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
-                <li><a href="{{clsUrl}}" title="{{item.name}}" class="interface-link">{{item.getShortName()}}</a>
+                <li><a href="{{doclink(item)}}" title="{{item.name}}" class="interface-link">{{item.getShortName()}}</a>
                 {% if item.getShortDescription()|raw != '' %}
                     - {{item.getShortDescription()|raw}}</li>
                 {% endif %}
@@ -59,9 +27,7 @@
             <ul class="classes">
             {% for item in tmp.nsInfos.classes %}
                 {% if item.isTrait() == false %}
-                    {% set cleanCls = item.name|replace({"\\" : "."}) %}
-                    {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
-                    <li{% if item.isTrait() %} class="trait"{% elseif item.isAbstract() %} class="abstract"{% endif %}><a title="{{item.name}}" class="class-link" href="{{clsUrl}}">{{item.getShortName()}}</a>
+                    <li{% if item.isTrait() %} class="trait"{% elseif item.isAbstract() %} class="abstract"{% endif %}><a title="{{item.name}}" class="class-link" href="{{doclink(item)}}">{{item.getShortName()}}</a>
                         {% if item.getShortDescription()|raw != '' %}
                             - {{item.getShortDescription()|raw}}
                         {% endif %}
@@ -77,9 +43,7 @@
         <ul class="classes">
         {% for item in tmp.nsInfos.classes %}
             {% if item.isTrait() %}
-                {% set cleanCls = item.name|replace({"\\" : "."}) %}
-                {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
-                <li class="trait"><a title="{{item.name}}" href="{{clsUrl}}" class="trait-link">{{item.getShortName()}}</a>
+                <li class="trait"><a title="{{item.name}}" href="{{doclink(item)}}" class="trait-link">{{item.getShortName()}}</a>
                     {% if item.getShortDescription()|raw != '' %}
                         - {{item.getShortDescription()|raw}}
                     {% endif %}
@@ -89,5 +53,5 @@
         </ul>
     </div>
     {% endif %}
-    
+
 {% endblock %}

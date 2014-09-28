@@ -20,7 +20,8 @@ use Lime\Common\Utils\NsUtils;
  * @package Doculizr
  * @subpackage Tags
  */
-class TagThrows extends AbstractTag {
+class TagThrows extends AbstractTag
+{
 
     /**
      * {@inheritdoc}
@@ -53,7 +54,7 @@ class TagThrows extends AbstractTag {
      */
     private function parseMultiFormat($value)
     {
-        $type = '(?<type>[a-z0-9\\\|]+)';
+        $type = '(?<type>[a-z0-9\\\|_]+)';
         $desc = '(?<description>.*)';
         $spaces = '[\\s]+';
         $regs = null;
@@ -87,11 +88,12 @@ class TagThrows extends AbstractTag {
 
         if ($refObj instanceof ReflectionFunction === false &&
                 $refObj instanceof ReflectionMethod === false) {
-
             $this->error(
-                    sprintf('@throws tag is not allowed in %s:%s',
-                            $this->getFileInfo()->getFilename(),
-                            $refObj->getStartLine())
+                sprintf(
+                    '@throws tag is not allowed in %s:%s',
+                    $this->getFileInfo()->getFilename(),
+                    $refObj->getStartLine()
+                )
             );
 
             return false;

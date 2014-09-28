@@ -16,7 +16,8 @@ namespace Lime\Parser\Tag;
  * @package Doculizr
  * @subpackage Tags
  */
-class TagAlias extends AbstractTag {
+class TagAlias extends AbstractTag
+{
 
     /**
      * {@inheritdoc}
@@ -98,8 +99,10 @@ class TagAlias extends AbstractTag {
 
         if (($parsed = $this->parseMultiFormat($tagValue))) {
             $data = $parsed;
-            $this->debug("@alias tag ($tagValue) parsed : " .
-                  json_encode($parsed));
+            $this->debug(
+                "@alias tag ($tagValue) parsed : " .
+                json_encode($parsed)
+            );
         }
 
         return $data;

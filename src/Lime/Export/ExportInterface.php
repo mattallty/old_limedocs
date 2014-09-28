@@ -20,7 +20,8 @@ use Lime\Filesystem\Finder;
  * @link http://doculizr.allty.com Doculizr Website
  *
  */
-interface ExportInterface {
+interface ExportInterface
+{
 
     public function export(Finder $finder, $toFile);
 }

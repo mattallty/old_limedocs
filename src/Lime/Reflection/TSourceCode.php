@@ -8,12 +8,14 @@
  * file that was distributed with this source code.
  */
 namespace Lime\Reflection;
+
 use Lime\App\TRuntimeParameter;
 
 /**
  * Source Code Trait
  */
-trait TSourceCode  {
+trait TSourceCode
+{
 
 
     use TRuntimeParameter;
@@ -25,20 +27,22 @@ trait TSourceCode  {
      *
      * @return string
      */
-    public function getSourceCode($all_file = false) {
+    public function getSourceCode($all_file = false)
+    {
 
-        if($all_file) {
+        if ($all_file) {
             return str_replace('<', '&lt;', file_get_contents($this->getFileName()));
         }
 
         $show_docblock = $this->getParameter('generate.show-docblock');
-        if($show_docblock) {
+        if ($show_docblock) {
             $docBlockLines = count(explode("\n", $this->getDocComment()));
-        }else{
+        } else {
             $docBlockLines = 0;
         }
 
-        $code = implode('',
+        $code = implode(
+            '',
             array_slice(
                 file($this->getFileName()),
                 $this->getStartLine() - 1 - $docBlockLines,

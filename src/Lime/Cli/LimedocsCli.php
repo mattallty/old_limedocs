@@ -16,8 +16,13 @@ class LimedocsCli extends Application
     public function __construct()
     {
         parent::__construct('Limedocs', '@package_version@');
-        foreach (glob(__DIR__ . '/Command/*.php') as $file) {
-            $command = 'Lime\\Cli\\Command\\' . basename($file, '.php');
+        $dirItr = new \RecursiveDirectoryIterator(__DIR__ . '/Command',
+            \FilesystemIterator::KEY_AS_PATHNAME |
+            \FilesystemIterator::CURRENT_AS_FILEINFO |
+            \FilesystemIterator::SKIP_DOTS
+        );
+        foreach($dirItr as $file) {
+            $command = 'Lime\\Cli\\Command\\' . $file->getBasename('.php');
             $this->add(new $command);
         }
     }

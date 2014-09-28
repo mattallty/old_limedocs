@@ -12,22 +12,22 @@ namespace Lime\Reflection;
 /**
  * Interface to attach metadata to Reflection objects
  */
-interface IMetaData {
+interface IMetaData
+{
     
     /**
      * Set metadata
-     * 
+     *
      * @param array $metadata Metadata array to set
      */
     public function setMetaData(array $metadata = null);
     /**
      * Get metadata
-     * 
-     * @return mixed If $key is provided, this method will return the entire 
-     * metadata array. If $key is provided, the associated metadata will be 
+     *
+     * @return mixed If $key is provided, this method will return the entire
+     * metadata array. If $key is provided, the associated metadata will be
      * returned. If no metadata are available, NULL will be returned.
      */
     public function getMetaData($key = null);
     
 }
-?>

@@ -15,7 +15,8 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Template Utils class
  */
-class Factory {
+class Factory
+{
 
     /**
      * Gets a ITemplate object
@@ -23,21 +24,19 @@ class Factory {
      * Gets a ITemplate object from the template code.
      * A template code is of the following form : *name@version*, ie *doculizr@1.0*
      *
-     * @param string $template_code Template code, for example *doculizr@1.0*
-     * @return \Doculizr\Template\infos
-     * @throws \RuntimeException Throws a RuntimeException if the the template
-     * manifest is not found, or if the template class cannot be loaded.
+     * @param string $template_path Template path
+     * @return TemplateInterface
      */
     public static function create($template_path)
     {
-        $bundled_tpl_dir = LIMEDOCS_ROOT_DIR . DS . 'data' . DS . 'templates';
+        $bundled_tpl_dir = __DIR__ . '/../../../data/templates';
 
         // Bundled template
-        if(is_dir($bundled_tpl_dir . DS . $template_path)) {
+        if (is_dir($bundled_tpl_dir . DS . $template_path)) {
             $template_path = $bundled_tpl_dir . DS . $template_path;
 
         // Or Custom location
-        } else if(!is_dir($template_path)) {
+        } elseif (!is_dir($template_path)) {
             throw new \RuntimeException('Template directory does not exist!');
         }
 

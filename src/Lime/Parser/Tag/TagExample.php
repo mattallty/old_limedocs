@@ -9,4 +9,3 @@
  */
 
 namespace Lime\Parser\Tag;
-

@@ -18,16 +18,19 @@ namespace Lime\Filesystem;
  * @link http://doculizr.allty.com Doculizr Website
  *
  */
-class FileInfoFactory {
+class FileInfoFactory
+{
     /**
      * FileInfo's holder
      * @var array
      */
     protected static $factoryCache = array();
 
+
+
     /**
-     * Factory method used to create and cache {DoculizrFileInfo} objects 
-     * 
+     * Factory method used to create and cache {DoculizrFileInfo} objects
+     *
      * @param string $filename Filename
      * @return DoculizrFileInfo
      */

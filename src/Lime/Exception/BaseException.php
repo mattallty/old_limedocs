@@ -12,6 +12,7 @@ namespace Lime\Exception;
 /**
  * Base Exception
  */
-abstract class BaseException extends \Exception {
+abstract class BaseException extends \Exception
+{
 
 }

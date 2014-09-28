@@ -10,13 +10,15 @@
 
 namespace Lime\Parser\Tag;
 
+use Lime\Reflection\ReflectionFactory;
 /**
  * The see Tag
  *
  * @package Doculizr
  * @subpackage Tags
  */
-class TagSee extends AbstractTag {
+class TagSee extends AbstractTag
+{
 
     /**
      * {@inheritdoc}
@@ -40,6 +42,7 @@ class TagSee extends AbstractTag {
             $this->debug('tag parsed as a property : ' . $elParts[1]);
             return array('type' => 'property', 'class' => $elParts[0],
                 'value' => $elParts[1]);
+
         } elseif (($func = Utils::isFunc($elParts[1]))) {
             $this->debug('tag parsed as a method : ' . $elParts[1]);
             return array('type' => 'method', 'class' => $elParts[0],
@@ -60,8 +63,8 @@ class TagSee extends AbstractTag {
         $tagVals = array_map('trim', explode(',', $tagVal));
         $ret = array();
 
-        foreach($tagVals as $tagVal) {
-            if(($data = $this->parseSimpleValue($tagVal))) {
+        foreach ($tagVals as $tagVal) {
+            if (($data = $this->parseSimpleValue($tagVal))) {
                 $ret[] = $data;
             }
         }
@@ -69,7 +72,8 @@ class TagSee extends AbstractTag {
         return count($ret) ? $ret : false;
     }
 
-    protected function parseSimpleValue($tagVal) {
+    protected function parseSimpleValue($tagVal)
+    {
         // scope
         if (($scopedElemParts = Utils::getScopedElementParts($tagVal))) {
             if (($data = $this->parseScopedElement($scopedElemParts))) {
@@ -82,7 +86,7 @@ class TagSee extends AbstractTag {
         if (!($scope = $this->getRefObject()->getInherits())) {
             if (!($scope = $this->getRefObject()->getDeclaringClass())) {
                 $scope = $this->getRefObject()->name;
-            }else{
+            } else {
                 $scope = $scope->name;
             }
         } else {
@@ -94,10 +98,16 @@ class TagSee extends AbstractTag {
          * Matches myMethod or myMethod()
          */
         $cleanMethod = Utils::cleanMethodName($tagVal);
+
         if (method_exists($scope, $cleanMethod)) {
-            return array('type' => 'method', 'class' => $scope,
-                'name' => $cleanMethod);
-        }else{
+
+            return array(
+                'type' => 'method',
+                'class' => $scope,
+                'method' => $cleanMethod
+            );
+
+        } else {
             $this->warning("method $cleanMethod dos not exist in " . $scope);
         }
 

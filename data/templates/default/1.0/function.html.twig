@@ -5,56 +5,12 @@
      <script type="text/javascript" src="{{relative_path}}assets/js/shCore.js"></script>
      <script type="text/javascript" src="{{relative_path}}assets/js/shBrushPhp.js"></script>
 {% endblock %}
-     
+
 {% block stylesheets %}
      {{ parent() }}
      <link href="{{relative_path}}assets/css/shCore.css" rel="stylesheet" type="text/css" />
      <link href="{{relative_path}}assets/css/shThemeEclipse.css" rel="stylesheet" type="text/css" />
 {% endblock %}
-
-{% block sidebar %}
-    <ul class="namespaces">
-    {% for item in namespaces %}
-            {% set cleanNs = item|replace({"\\" : "."}) %}
-            {% set nsUrl = "#{cleanNs|lower}.#{meta.fileExt}" %}
-            {% if tmp.ns != item %}
-                <li><a href="{{nsUrl}}">{{cleanNs}}</a></li>
-            {% else %}
-                <hr />
-                <li class="active">{{cleanNs}}</li>
-                <ul class="classes">
-                {% for itemc in tmp.nsInfos.classes %}
-                    {% set cleanCls = itemc.name|replace({"\\" : "."}) %}
-                    {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
-                    {% if tmp.className != itemc.name %}
-                        <li{% if itemc.isTrait() %} class="trait"{% elseif itemc.isAbtract() %} class="abstract"{% endif %}><a href="{{clsUrl}}">{{itemc.getShortName()}}</a></li>
-                    {% else %}   
-                        <hr />
-                        <li class="active {% if itemc.isTrait() %} trait {% elseif itemc.isAbstract() %} abstract{% endif %}"><a href="{{clsUrl}}">{{itemc.getShortName()}}</a></li>
-                        <ul class="methods">
-                        {% for method in itemc.getMethods() %}
-                            {% if method.isInherited() == false %}
-                            <li {% if method.getName() == tmp.funcName %}class="active"{% endif %}><a href="{{cleanCls|lower}}.{{method.name|lower}}.{{meta.fileExt}}">{{method.name}}</a></li>
-                            {% endif %}
-                        {% endfor %}
-                        </ul>
-                    {% endif %}
-                {% endfor %}
-                </ul>
-                <ul class="interfaces">
-                {% for itemc in tmp.nsInfos.interfaces %}
-                    {% set cleanCls = itemc.name|replace({"\\" : "."}) %}
-                    {% set clsUrl = "#{cleanCls|lower}.#{meta.fileExt}" %}
-                    <li><a href="{{clsUrl}}">{{itemc.getShortName()}}</a></li>
-                {% endfor %}
-                </ul>
-                <hr />
-            {% endif %}
-            
-    {% endfor %}
-    </ul>
-{% endblock %}
-
 
 {% block content %}
     {% set classMeta = tmp.classInfos.getMetaData() %}
@@ -77,7 +33,7 @@
                     {% set ml = ml + 13 %}
                 {% endif %}
             {% endfor %}
-        </ul>  
+        </ul>
     {% endif %}
     <h1><span class="func-class-prefix">{{tmp.className|showClassHtmlHead}}{% if tmp.funcInfos.isStatic() %}::{% else %}->{%endif%}</span>{{tmp.funcName}}()
         {% if extendedClass or impInterfaces|length %}
@@ -105,7 +61,7 @@
             </div>
         {% endif %}
     </h1>
-    
+
     <h2>Description</h2>
     <div class="long-description">{{tmp.funcInfos.getLongDescription()|raw}}</div>
 
@@ -135,7 +91,9 @@
         <h2>See also</h2>
         <ul class="see">
         {% for item in tmp.funcInfos.getSees() %}
-            <li><a href="{{item.link}}">{{item.label|raw}}</a></li>
+            {%  if item.type == 'method' %}
+                <li><a href="{{methodLink(item.class, item.method)}}">{{item.label|raw}}</a></li>
+            {%  endif %}
         {% endfor %}
         </ul>
     {% endif %}
@@ -153,7 +111,7 @@
         </table>
     {% endif %}
 
-    {% if meta.options['show-methods-source'] %}
+    {% if meta.options['show-method-source'] %}
 
         <h2>Source Code</h2>
         <pre class="brush: php; first-line:{{tmp.funcInfos.getStartLine()}}">{{tmp.funcInfos.getSourceCode()|raw}}</pre>
@@ -167,5 +125,5 @@
         </script>
 
     {% endif %}
-  
+
 {% endblock %}

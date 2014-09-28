@@ -14,44 +14,65 @@ namespace Lime\Common\Utils;
 /**
  * Some filesystem-related utils
  */
-class FsUtils {
+class FsUtils
+{
 
     public static function rmdir($dir)
     {
         $files = array_diff(scandir($dir), array('.', '..'));
         foreach ($files as $file) {
-            if(is_dir("$dir/$file")) {
+            if (is_dir("$dir/$file")) {
                 self::rmdir("$dir/$file");
-            } else{
+            } else {
                 unlink("$dir/$file");
             }
         }
         return rmdir($dir);
     }
 
+    /*
     public static function cpdir($source_dir, $dest_dir) {
+        return shell_exec("cp -r $source_dir $dest_dir");
+    }*/
 
-        $source_dir = realpath($source_dir);
-        $src_len = strlen($source_dir);
-
-        if(!is_dir($dest_dir)) {
-            mkdir($dest_dir, 0777, true);
+    /**
+     * Copy a file, or recursively copy a folder and its contents
+     * @param       string $source Source path
+     * @param       string $dest Destination path
+     * @param       string $permissions New folder creation permissions
+     * @return      bool     Returns true on success, false on failure
+     */
+    public static function cpdir($source, $dest, $permissions = 0755)
+    {
+        // Check for symlinks
+        if (is_link($source)) {
+            return symlink(readlink($source), $dest);
         }
-        $directory = new \RecursiveDirectoryIterator($source_dir);
-        foreach (new \RecursiveIteratorIterator($directory) as $filename => $current) {
-            $src = $current->getPathName();
-            $path = substr($src, $src_len);
-            $dest = $dest_dir . $path;
-            $dir = dirname($dest);
 
-            if(!is_dir($dir)) {
-                mkdir($dir, 0777, true);
-            }
-            if(!copy($src, $dest)) {
-                throw new \Exception(error_get_last());
-                return false;
-            }
+        // Simple copy for a file
+        if (is_file($source)) {
+            return copy($source, $dest);
         }
+
+        // Make destination directory
+        if (!is_dir($dest)) {
+            @mkdir($dest, $permissions);
+        }
+
+        // Loop through the folder
+        $dir = dir($source);
+        while (false !== $entry = $dir->read()) {
+            // Skip pointers
+            if ($entry == '.' || $entry == '..') {
+                continue;
+            }
+
+            // Deep copy directories
+            self::cpdir("$source/$entry", "$dest/$entry");
+        }
+
+        // Clean up
+        $dir->close();
         return true;
     }
 
