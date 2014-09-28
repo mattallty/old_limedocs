@@ -10,8 +10,6 @@
 
 namespace Lime\Parser\Tag;
 
-use Doculizr\Core;
-
 /**
  * The see Tag
  *
@@ -39,11 +37,11 @@ class TagSee extends AbstractTag {
     private function parseScopedElement($elParts)
     {
         if (Utils::isVar($elParts[1])) {
-            Core::getLogger()->debug('tag parsed as a property : ' . $elParts[1]);
+            $this->debug('tag parsed as a property : ' . $elParts[1]);
             return array('type' => 'property', 'class' => $elParts[0],
                 'value' => $elParts[1]);
         } elseif (($func = Utils::isFunc($elParts[1]))) {
-            Core::getLogger()->debug('tag parsed as a method : ' . $elParts[1]);
+            $this->debug('tag parsed as a method : ' . $elParts[1]);
             return array('type' => 'method', 'class' => $elParts[0],
                 'value' => $func);
         }
@@ -61,23 +59,23 @@ class TagSee extends AbstractTag {
 
         $tagVals = array_map('trim', explode(',', $tagVal));
         $ret = array();
-        
+
         foreach($tagVals as $tagVal) {
             if(($data = $this->parseSimpleValue($tagVal))) {
                 $ret[] = $data;
             }
         }
-        
+
         return count($ret) ? $ret : false;
     }
-    
+
     protected function parseSimpleValue($tagVal) {
         // scope
         if (($scopedElemParts = Utils::getScopedElementParts($tagVal))) {
             if (($data = $this->parseScopedElement($scopedElemParts))) {
                 return $data;
             }
-            Core::getLogger()->warn('Cannot parse @see tag "' . $tagVal .'" in ' . $this->getRefObject());
+            $this->warning('Cannot parse @see tag "' . $tagVal .'" in ' . $this->getRefObject());
             return false;
         }
 
@@ -88,7 +86,7 @@ class TagSee extends AbstractTag {
                 $scope = $scope->name;
             }
         } else {
-            Core::getLogger()->warn("scope has inherits");
+            $this->warning("scope has inherits");
             $scope = $scope->name;
         }
 
@@ -100,7 +98,7 @@ class TagSee extends AbstractTag {
             return array('type' => 'method', 'class' => $scope,
                 'name' => $cleanMethod);
         }else{
-            Core::getLogger()->warn("method $cleanMethod dos not exist in " . $scope);
+            $this->warning("method $cleanMethod dos not exist in " . $scope);
         }
 
         /**
@@ -126,7 +124,7 @@ class TagSee extends AbstractTag {
             return array('type' => 'url', 'value' => $file);
         }
 
-        Core::getLogger()->warn('Cannot parse @see tag "' . $tagVal .'" in ' . $this->getRefObject());
+        $this->warning('Cannot parse @see tag "' . $tagVal .'" in ' . $this->getRefObject());
         return false;
     }
 
@@ -135,7 +133,7 @@ class TagSee extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @see tag : "' . $tagValue . '"');
+        $this->debug('Parsing @see tag : "' . $tagValue . '"');
 
         $sees = array_map('trim', explode(',', $tagValue));
         $data = array();
@@ -143,7 +141,7 @@ class TagSee extends AbstractTag {
         foreach ($sees as $tagVal) {
             if (($parsed = $this->parseMultiFormat($tagVal))) {
                 $data[] = $parsed;
-                Core::getLogger()->debug("@see tag ($tagVal) parsed : " . json_encode($parsed));
+                $this->debug("@see tag ($tagVal) parsed : " . json_encode($parsed));
             }
         }
 

@@ -9,11 +9,10 @@
  */
 
 namespace Lime\Parser\Tag;
-use \Doculizr\Core;
 
 /**
  * The `deprecated` Tag.
- * 
+ *
  * This tag blabla...
  *
  * @package Doculizr
@@ -42,7 +41,7 @@ class TagDeprecated extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @deprecated tag');
+        $this->debug('Parsing @deprecated tag');
         return true;
     }
 

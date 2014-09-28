@@ -10,11 +10,7 @@
 
 namespace Lime\Parser\Tag;
 
-use Doculizr\Core;
-use Doculizr\Utils\DoculizrUtils;
-use Doculizr\Reflection\DoculizrReflectionFunction;
-use Doculizr\Reflection\DoculizrReflectionMethod;
-
+use Lime\Common\Utils\NsUtils;
 /**
  * The `var` Tag
  *
@@ -68,14 +64,13 @@ class TagVar extends AbstractTag {
         );
 
         foreach ($formats as $key => $format) {
-
             if (preg_match($format, $value, $regs)) {
-                $regs['type'] = DoculizrUtils::stripStartBackslash($regs['type']);
+                $regs['type'] = NsUtils::stripLeadingBackslash($regs['type']);
                 return $this->filterNumericIndexes($regs);
             }
         }
 
-        Core::getLogger()->warn('Cannot parse @var tag : ' . $value);
+        $this->warning('Cannot parse @var tag : ' . $value);
         return false;
     }
 
@@ -101,7 +96,7 @@ class TagVar extends AbstractTag {
         }*/
 
 
-        Core::getLogger()->debug('Parsing @var tag : "' . $tagValue . '"');
+        $this->debug('Parsing @var tag : "' . $tagValue . '"');
 
         if (!($data = $this->parseMultiFormat($tagValue))) {
             return false;
@@ -111,7 +106,7 @@ class TagVar extends AbstractTag {
         $data['type'] = $this->scopeElement($data['type']);
 
 
-        Core::getLogger()->debug('@var tag parsed : ' . json_encode($data));
+        $this->debug('@var tag parsed : ' . json_encode($data));
 
         return $data;
     }

@@ -12,23 +12,17 @@ namespace Lime\Template;
 /**
  * Interface for all templating classes
  */
-interface ITemplate {
-    
-    
+interface TemplateInterface {
     public function __construct(array $tpl_infos);
-    
     public function output();
-    
     public function getInfos($info = null);
     public function getName();
     public function getVersion();
     public function getPath();
-    
     public function getIndexFile();
     public function getNsFile();
     public function getClassFile();
     public function getInterfaceFile();
     public function getTraitFile();
     public function getMethodFile();
-    
 }

@@ -11,7 +11,9 @@
 namespace Lime\Parser\Tag;
 
 use Lime\Filesystem\FileInfo;
-use Lime\Common\Utils;
+use Lime\Common\Utils\NsUtils;
+use Lime\Logger\LoggerAwareInterface;
+use Lime\Logger\TLogger;
 
 /**
  * Abstract Tag
@@ -19,7 +21,10 @@ use Lime\Common\Utils;
  * @package Doculizr
  * @subpackage Tags
  */
-abstract class AbstractTag implements ITag {
+abstract class AbstractTag implements ITag, LoggerAwareInterface {
+
+    use TLogger;
+
 
     /** @var array Parsed data */
     protected $parsedData;
@@ -79,7 +84,7 @@ abstract class AbstractTag implements ITag {
 
     /**
      * Filter numeric indexes
-     * 
+     *
      * @param array $regs Array of tags
      * @return array filtered array
      */
@@ -113,10 +118,10 @@ abstract class AbstractTag implements ITag {
     public function getLabel() {
         return 'unknown';
     }
-    
+
     /**
      * Get PHP native types
-     * 
+     *
      * @return string PHP Type, ie 'string', 'bool', 'float', etc.
      */
     public function getNativeTypes()
@@ -142,7 +147,7 @@ abstract class AbstractTag implements ITag {
 
     /**
      * Check if given string correponds to a native PHP type
-     * 
+     *
      * @param string $type Type
      * @return boolean returns true if $type is a native PHP type, otherwise false.
      */
@@ -153,7 +158,7 @@ abstract class AbstractTag implements ITag {
 
     /**
      * Checks if a class name is fully scoped.
-     * 
+     *
      * @param string $element Element, ie class or interface name.
      * @return string Returns the class name prepended by its namespace if needed.
      */
@@ -174,16 +179,16 @@ abstract class AbstractTag implements ITag {
         // Check the 'type' if the code is namespaced
         $uses = $this->getFileInfo()->getBaseUses();
         $elements = explode('|', $element);
-        
+
         foreach ($elements as $typeIndex => $type) {
-            
+
             if (in_array($type, array('$this', 'self', 'this'))) {
                 $elements[$typeIndex] = $this->getRefObject()->class;
-                
+
             } elseif (!$this->isNativeType($type) && !$this->isFullyScoped($type)) {
-                
+
                 $typeTopLevel = $this->getNamespaceTopLevel($type);
-                
+
                 if (false !== $usesIndex = array_search($typeTopLevel, $uses)) {
                     $elements[$typeIndex] = substr($usesIndex, 0,
                                     -strlen($typeTopLevel)) . $type;
@@ -194,8 +199,8 @@ abstract class AbstractTag implements ITag {
                     }
                 }
             }
-            
-            $elements[$typeIndex] = Utils::stripStartBackslash($elements[$typeIndex]);
+
+            $elements[$typeIndex] = NsUtils::stripLeadingBackslash($elements[$typeIndex]);
         }
 
         return implode('|', $elements);
@@ -207,7 +212,7 @@ abstract class AbstractTag implements ITag {
      * For example, if type is Foobar\Joe\Name, top level is Foobar
      * Works with a NS starting with a "\" (backslash) or not,
      * so you can use it with "use" statements.
-     * 
+     *
      * @return string
      */
     protected function getNamespaceTopLevel($namespace)
@@ -226,7 +231,7 @@ abstract class AbstractTag implements ITag {
 
     /**
      * Get the class name of the current object.
-     * 
+     *
      * @return string returns class name.
      */
     public function getClassName()

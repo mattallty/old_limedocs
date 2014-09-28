@@ -12,10 +12,10 @@ namespace Lime\Template;
 /**
  * Main templating class
  */
-class DefaultTemplate extends AbstractTemplate {
+class DefaultTemplate extends Template {
 
     public function output() {
-        
+
     }
 
     public function getIndexFile() {
@@ -36,5 +36,5 @@ class DefaultTemplate extends AbstractTemplate {
     public function getMethodFile() {
         return 'method.twig.html';
     }
-    
+
 }

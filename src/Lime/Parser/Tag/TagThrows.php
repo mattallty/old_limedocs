@@ -10,10 +10,9 @@
 
 namespace Lime\Parser\Tag;
 
-use Doculizr\Core;
-use Doculizr\Utils\DoculizrUtils;
-use Doculizr\Reflection\DoculizrReflectionFunction;
-use Doculizr\Reflection\DoculizrReflectionMethod;
+use Lime\Reflection\ReflectionMethod;
+use Lime\Reflection\ReflectionFunction;
+use Lime\Common\Utils\NsUtils;
 
 /**
  * The <code>throws</code> Tag
@@ -69,12 +68,12 @@ class TagThrows extends AbstractTag {
 
         foreach ($formats as $format) {
             if (preg_match($format, $value, $regs)) {
-                $regs['type'] = DoculizrUtils::stripStartBackslash($regs['type']);
+                $regs['type'] = NsUtils::stripLeadingBackslash($regs['type']);
                 return $this->filterNumericIndexes($regs);
             }
         }
 
-        Core::getLogger()->warn('Cannot parse @throws tag : ' . $value);
+        $this->warning('Cannot parse @throws tag : ' . $value);
         return false;
     }
 
@@ -86,10 +85,10 @@ class TagThrows extends AbstractTag {
         // @param tag is retsricted to methods and functions
         $refObj = $this->getRefObject();
 
-        if ($refObj instanceof DoculizrReflectionFunction === false &&
-                $refObj instanceof DoculizrReflectionMethod === false) {
+        if ($refObj instanceof ReflectionFunction === false &&
+                $refObj instanceof ReflectionMethod === false) {
 
-            Core::getLogger()->error(
+            $this->error(
                     sprintf('@throws tag is not allowed in %s:%s',
                             $this->getFileInfo()->getFilename(),
                             $refObj->getStartLine())
@@ -99,7 +98,7 @@ class TagThrows extends AbstractTag {
         }
 
 
-        Core::getLogger()->debug('Parsing @throws tag : "' . $tagValue . '"');
+        $this->debug('Parsing @throws tag : "' . $tagValue . '"');
 
         if (!($data = $this->parseMultiFormat($tagValue))) {
             return false;
@@ -108,7 +107,7 @@ class TagThrows extends AbstractTag {
         // redraw type
         $data['type'] = $this->scopeElement($data['type']);
 
-        Core::getLogger()->debug('@throws tag parsed : ' . json_encode($data));
+        $this->debug('@throws tag parsed : ' . json_encode($data));
 
         return $data;
     }

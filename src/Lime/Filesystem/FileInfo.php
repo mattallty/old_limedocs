@@ -14,11 +14,11 @@ use Lime\Reflection\ReflectionFactory;
 
 /**
  * File-related informations class
- * 
+ *
  * This class match one or more documentable elements with a file.
  */
 class FileInfo {
-    
+
     /**
      * @var string Filename
      */
@@ -32,7 +32,7 @@ class FileInfo {
      */
     protected $baseUses = null;
     /**
-     * @var array Nemspaces found in the file 
+     * @var array Nemspaces found in the file
      */
     protected $namespaces = array();
     /**
@@ -48,10 +48,10 @@ class FileInfo {
      */
     protected $functions = array();
 
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param string $filename Filename to analyse
      */
     public function __construct($filename)
@@ -61,34 +61,34 @@ class FileInfo {
 
     /**
      * Analyse the file to find classes and interfaces.
-     * 
+     *
      * @return \Doculizr\Finder\DoculizrFileInfo
      */
     public function analyse()
     {
         if (count($this->classes)) {
             foreach (array_keys($this->classes) as $class) {
-                
-                $this->classes[$class] = DoculizrReflectionFactory::factory(
-                                'Doculizr\Reflection\DoculizrReflectionClass',
+
+                $this->classes[$class] = ReflectionFactory::factory(
+                                'Lime\Reflection\ReflectionClass',
                                 $class, $this);
             }
         }
-        
+
         if (count($this->interfaces)) {
             foreach (array_keys($this->interfaces) as $itf) {
-                $this->interfaces[$itf] = DoculizrReflectionFactory::factory(
-                                'Doculizr\Reflection\DoculizrReflectionClass',
+                $this->interfaces[$itf] = ReflectionFactory::factory(
+                                'Lime\Reflection\ReflectionClass',
                                 $itf, $this);
             }
         }
-        
+
         return $this;
     }
 
     /**
      * Gets the filename
-     * 
+     *
      * @return string
      */
     public function getFilename()
@@ -98,7 +98,7 @@ class FileInfo {
 
     /**
      * Set namespaces used in the file
-     * 
+     *
      * @param array $uses Array of namespaces names
      * @return \Doculizr\Finder\DoculizrFileInfo
      */
@@ -113,7 +113,7 @@ class FileInfo {
 
     /**
      * Get used classes within the file
-     * 
+     *
      * @see setUses
      * @return array
      */
@@ -124,7 +124,7 @@ class FileInfo {
 
     /**
      * Gets cleaned namespace used in this file
-     * 
+     *
      * @param boolean $force Force to compute the base names
      * @return array
      */
@@ -136,7 +136,7 @@ class FileInfo {
                 $this->baseUses = array_combine($uses,
                         array_map(array($this, 'getUseBase'), $uses));
             }else{
-                $this->baseUses = array(); 
+                $this->baseUses = array();
             }
         }
         return $this->baseUses;
@@ -144,7 +144,7 @@ class FileInfo {
 
     /**
      * Returns the element basename
-     * 
+     *
      * @param string $usepath "use" Path
      * @return string Cleaned name
      */
@@ -156,7 +156,7 @@ class FileInfo {
 
     /**
      * Set classes in file
-     * 
+     *
      * @param array $classes Array of classes
      * @return \Doculizr\Finder\DoculizrFileInfo
      * @see setNamespaces
@@ -175,7 +175,7 @@ class FileInfo {
 
     /**
      * Get classes declared in the file.
-     * 
+     *
      * @see setClasses
      * @return array
      */
@@ -186,7 +186,7 @@ class FileInfo {
 
     /**
      * Set the namepaces that are declared in the file.
-     * 
+     *
      * @param array $namespaces Namespaces declared in the file
      * @return \Doculizr\Finder\DoculizrFileInfo
      * @see getNamespaces
@@ -233,7 +233,7 @@ class FileInfo {
     }
     /**
      * Set the functions declared
-     * 
+     *
      * @param array $functions Array of functions declared in the file.
      * @return array
      */

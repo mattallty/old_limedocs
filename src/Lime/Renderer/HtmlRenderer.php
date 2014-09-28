@@ -9,72 +9,76 @@
  */
 namespace Lime\Renderer;
 
-use Lime\Core;
+use Lime\App\App;
+use Lime\Common\Utils\FsUtils;
 
 /**
  * Renderer
- *
- * @author Matthias Etienne <matt@allty.com>
- * @copyright (c) 2012, Matthias Etienne
- * @license http://doculizr.allty.com/license MIT
- * @link http://doculizr.allty.com Doculizr Website
  */
-class HtmlRenderer extends AbstractRenderer {
+class HtmlRenderer extends Renderer {
 
     /**
      * {@inheritdoc}
      */
     public function render()
     {
+
+        $app = App::getInstance();
+        $no_tpl_cache = $this->getParameter('generate.without-template-cache');
+
         $loader = new \Twig_Loader_Filesystem(
-            $this->getTemplate()->getPath() . DS . 'template'
+            $this->getTemplate()->getPath()
         );
+
         $twig = new \Twig_Environment($loader, array(
-            'cache' => $this->options['no-tpl-cache'] === true ? false : \DOCULIZR_CACHE_DIR,
+            'cache' => $no_tpl_cache ? false : sys_get_temp_dir()
         ));
-        
+
         $twig->addFilter('var_dump', new \Twig_Filter_Function('var_dump'));
-        $extension = $this->getFilesExtension();
-        
-        $breadCumbNs = function($parts) use ($extension) {
+        $ext = $this->getFileExt();
+
+        $breadCumbNs = function($parts) use ($ext) {
             $res = '';
             $tmp = '';
             foreach($parts as $ns) {
                 $nsl = strtolower($ns);
-                $res .= '<a href="'.$tmp.$nsl.'.'.$extension.'">'.$ns.'</a> \\ ';
+                $res .= '<a href="'.$tmp.$nsl.'.'.$ext.'">'.$ns.'</a> \\ ';
                 $tmp .= $nsl.'.';
             }
             return substr($res, 0, -3);
         };
-        
-        $filter = new \Twig_SimpleFilter('showClassHtmlHead', function ($string) use($breadCumbNs) {
-            $parts = explode('\\', $string);
-            $classShortName = array_pop($parts);
-            $nsBread = $breadCumbNs($parts);
-            return '<span class="class-ns">'.$nsBread.'</span> '.$classShortName;
+
+        $filter = new \Twig_SimpleFilter('showClassHtmlHead',
+            function ($string) use($breadCumbNs) {
+                $parts = explode('\\', $string);
+                $classShortName = array_pop($parts);
+                $nsBread = $breadCumbNs($parts);
+                return '<span class="class-ns">'.$nsBread.'</span> '.$classShortName;
         }, array('is_safe' => array('html')));
 
         $twig->addFilter($filter);
-        
+
         $tplInfos = $this->getTemplate()->getInfos();
-        
-        $this->buildTree();
-        $documentation = $this->getParser()->getFinder()->getDocumentationTree();
-        
+
+        $this->prepareFilesystem();
+        $app->get('parser')->parse();
+        $documentation = $app->getFinder()->getDocumentationTree();
+
         $templateData = array(
             'meta' => array(
                 'template' => $tplInfos,
-                'fileExt' => $extension,
-                'options' => Core::getInstance()->getOption()
+                'fileExt' => $ext,
+                'options' => $this->getParameters('generate')
             ),
             'tmp' => array(),
             'doc' => $documentation,
             'namespaces' => array_keys($documentation)
         );
-        
+
         // copy assets
-        shell_exec('cp -r ' . $this->getTemplate()->getPath() . DS . 'template' . DS . 'assets ' . $this->getDocPath() . 'assets');
-        
+        FsUtils::cpdir($this->getTemplate()->getPath() . DS . 'assets', $this->getDocPath() . 'assets');
+        //shell_exec('cp -r ' . $this->getTemplate()->getPath() . DS . 'assets ' . $this->getDocPath() . 'assets');
+
         $this->makeFile($this->getDocPath(), 'index',
             $twig->render('index.html.twig', $templateData)
         );
@@ -85,17 +89,17 @@ class HtmlRenderer extends AbstractRenderer {
             $this->makeFile($this->getDocPath(), strtolower(str_replace("\\", ".", $ns)),
                 $twig->render('ns.html.twig', $templateData)
             );
-            
+
             foreach($nsInfos['classes'] as $class) {
                 $templateData['tmp']['className'] = $class->getName();
                 $templateData['tmp']['classInfos'] = $class;
                 $templateData['tmp']['ancestors'] = $class->getAncestors(true);
-                
+
                 $this->makeFile($this->getDocPath(),
                         strtolower(str_replace("\\", ".", $class->name)),
                         $twig->render('class.html.twig', $templateData)
                 );
-                
+
                 foreach ($class->getMethods() as $method) {
                     if($method->isInherited()) {
                         continue;
@@ -107,8 +111,8 @@ class HtmlRenderer extends AbstractRenderer {
                         $twig->render('function.html.twig', $templateData)
                     );
                 }
-                
-                
+
+
             }
             foreach($nsInfos['interfaces'] as $class) {
                 $templateData['tmp']['className'] = $class->getName();
@@ -117,7 +121,7 @@ class HtmlRenderer extends AbstractRenderer {
                         strtolower(str_replace("\\", ".", $class->name)),
                         $twig->render('class.html.twig', $templateData)
                 );
-                
+
                 foreach ($class->getMethods() as $method) {
                     if($method->isInherited()) {
                         continue;
@@ -131,39 +135,18 @@ class HtmlRenderer extends AbstractRenderer {
                 }
             }
         }
-        
-        if($this->options['open']) {
-            /* windows */
-            if(preg_match('@Win@', \PHP_OS)) {
-
-            /* osx */    
-            }elseif(preg_match('@Darwin@', \PHP_OS)) {
-                exec('open '.$this->getDocIndexPath());
-            /* unix-like */    
-            }else{
-                exec('xdg-open '.$this->getDocIndexPath());
-            }
-        }
-
-        /*
-
-        $tpl = new $manifestInfos['template-class']($this->parser,
-                $this->options, $manifestInfos);
-        
-        $tpl->init();
-        $tpl->output();*/
     }
-    
+
     public function init() {
         return $this;
     }
-    
+
     public function getDocIndexPath() {
-       return $this->getDocPath() . 'index' . '.' . $this->getFilesExtension();
+       return $this->getDocPath() . 'index' . '.' . $this->getFileExt();
     }
-    
+
     public function makeFile($path, $filename, $data) {
-        $realpath = $path . $filename . '.' . $this->getFilesExtension();
+        $realpath = $path . $filename . '.' . $this->getFileExt();
         $this->getLogger()->info('Writing file '.$realpath);
         return file_put_contents($realpath, $data);
     }
@@ -171,16 +154,9 @@ class HtmlRenderer extends AbstractRenderer {
     /**
      * {@inheritdoc}
      */
-    public function getFilesExtension()
+    public function getFileExt()
     {
         return 'html';
-    }
-    /**
-     * {@inheritdoc}
-     */    
-    public function getRenderFormat()
-    {
-        return self::RENDER_FORMAT_HTML;
     }
 
 }

@@ -9,22 +9,26 @@
  */
 namespace Lime\Reflection;
 
+use Lime\Logger\LoggerAwareInterface;
+use Lime\Logger\TLogger;
 use Lime\Parser\Parser;
 use Lime\Filesystem\FileInfo;
 use Lime\Core;
 
 /**
  * Reflection class handling functions
- * 
+ *
  * This reflection class handles functions, either global or in namespaces.
  * It implements the {IMetaData} interface, extends the {ReflectionFunction}
  * class, and make use of the {TMetaData} trait.
- * 
+ *
  */
-class ReflectionFunction extends \ReflectionFunction implements IMetaData {
-    
+class ReflectionFunction extends \ReflectionFunction implements IMetaData, LoggerAwareInterface {
+
     // use the TMetaData trait
     use TMetaData;
+
+    use TLogger;
 
     /**
      * @var \Lime\Filesystem\FileInfo
@@ -33,7 +37,7 @@ class ReflectionFunction extends \ReflectionFunction implements IMetaData {
 
     public function __construct($name, FileInfo $fileInfo)
     {
-        Core::getLogger()->info("Analysing function $name");
+        $this->info("Analysing function $name");
         parent::__construct($name);
 
         $this->fileInfo = $fileInfo;

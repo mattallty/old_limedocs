@@ -10,11 +10,9 @@
 
 namespace Lime\Parser\Tag;
 
-use \Doculizr\Core;
-
 /**
  * The `api` Tag.
- * 
+ *
  * This tag blabla...
  *
  * @package Doculizr
@@ -43,7 +41,7 @@ class TagApi extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @api tag');
+        $this->debug('Parsing @api tag');
         return true;
     }
 

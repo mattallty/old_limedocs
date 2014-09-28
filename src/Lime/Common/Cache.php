@@ -10,6 +10,8 @@
 namespace Lime\Common;
 
 use Doctrine\Common\Cache\Cache as DoctrineCacheInterface;
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\ApcCache;
 
 class Cache {
 
@@ -45,6 +47,6 @@ class Cache {
      * @return mixed
      */
     public function __call($method, $args) {
-        return call_user_func_array($method, $args);
+        return call_user_func_array(array($this->provider, $method), $args);
     }
 }

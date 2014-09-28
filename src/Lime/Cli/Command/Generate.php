@@ -9,16 +9,14 @@
  */
 namespace Lime\Cli\Command;
 
-use Symfony\Component\Console\Command\Command;
+use Lime\App\TRuntimeParameter;
+use Lime\Cli\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Lime\Core;
-use Lime\App;
-use Lime\Renderer\HtmlRenderer;
+use Lime\App\App;
 use Lime\Template\Utils;
-use Symfony\Component\Console\Logger\ConsoleLogger;
+
 
 /**
  * Generates documentation
@@ -27,6 +25,8 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
  */
 class Generate extends Command
 {
+
+    use TRuntimeParameter;
 
     /**
      * Configure command
@@ -41,12 +41,13 @@ class Generate extends Command
             ->setName('generate')
             ->setDescription('Generate documentation')
             ->addArgument(
-                'source', InputArgument::REQUIRED,
+                'source-dir', InputArgument::REQUIRED,
                 'Source code directory'
             )
             ->addOption(
-                'destination', 'd', InputOption::VALUE_OPTIONAL,
-                'Destination directory where documentation will be written.'
+                'output', 'o', InputOption::VALUE_OPTIONAL,
+                'Directory zhere to generate the docu;entation. If not specified, the default is "docs".',
+                './docs'
             )
             ->addOption(
                 'bootstrap', 'b', InputOption::VALUE_OPTIONAL,
@@ -104,7 +105,7 @@ class Generate extends Command
      */
     public function errorHandler($errno, $errstr, $errfile, $errline)
     {
-        $this->getLogger()->error("ERROR : [$errno] $errstr in file $errfile line $errline");
+        App::getInstance()->get('logger')->error("ERROR : [$errno] $errstr in file $errfile line $errline");
         exit(1);
     }
 
@@ -116,7 +117,7 @@ class Generate extends Command
         $error = error_get_last();
         if ($error !== NULL) {
             if ($error['type'] === \E_ERROR) {
-                $this->getLogger()->error("Doculizr Error : ", $error['message'],
+                App::getInstance()->get('logger')->error("Doculizr Error : ", $error['message'],
                     ' in file ', $error['file'], ' on line ', $error['line']);
                 exit(1);
             }
@@ -130,45 +131,26 @@ class Generate extends Command
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output Interface
      * @return void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function exec(InputInterface $input)
     {
-        $logger = new ConsoleLogger($output);
         $app = App::getInstance();
-        $app->setLogger($logger);
-
+        $logger = $app->get('logger');
         $options = array_filter($input->getOptions());
 
         foreach ($options as $optName => $optVal) {
-            $app->getContainer()->setParameter('generate.' . $optName, $optVal);
+            $this->setParameter('generate.' . $optName, $optVal);
         }
 
-        //error_reporting(0);
-        Core::getInstance()->setOptions($input->getOptions(), true);
+        $this->setParameter('generate.source-dir',
+            realpath($input->getArgument('source-dir'))
+        );
 
         $logger->info("Initializing Limedocs...");
 
         set_error_handler(array($this, 'errorHandler'));
         register_shutdown_function(array($this, 'handleShutdown'));
 
-
-        $source = realpath($input->getArgument('source'));
-
-
-        $finder = new DoculizrFinder($source);
-        $parser = new DoculizrParser($finder);
-
-        //$xml = new XML();
-        //$xml->export($finder, '/Users/matt/Desktop/export.xml');
-        $options = Core::getInstance()->getOption();
-
-        // template
-        $templateObject = Utils::getTemplateObject($options['template']);
-
-        $renderer = new HtmlRenderer($templateObject);
-        $renderer->setParser($parser)
-            ->setOptions($options)
-            ->init()
-            ->render();
+        $app->get('renderer')->init()->render();
     }
 
 }

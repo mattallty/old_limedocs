@@ -9,7 +9,6 @@
  */
 
 namespace Lime\Parser\Tag;
-use \Doculizr\Core;
 
 /**
  * The `Changelog` Tag
@@ -48,7 +47,7 @@ class TagChangelog extends AbstractTag {
             '/^' . $version . $spaces . $changes . '$/i',
         );
 
-        Core::getLogger()->debug('Parsing @changelog tag : "' . $tagValue . '"');
+        $this->debug('Parsing @changelog tag : "' . $tagValue . '"');
 
         // try to match with available formats
         foreach ($formats as $format) {
@@ -60,14 +59,14 @@ class TagChangelog extends AbstractTag {
 
         // no format matched
         if (!$fomatFound) {
-            Core::getLogger()->warn('Cannot parse @changelog tag : ' . $tagValue);
+            $this->warning('Cannot parse @changelog tag : ' . $tagValue);
             return false;
         }
 
         // flat array
         $data = array_map('trim', $this->filterNumericIndexes($regs));
 
-        Core::getLogger()->debug('@changelog tag parsed : ' . json_encode($data));
+        $this->debug('@changelog tag parsed : ' . json_encode($data));
 
         return $data;
     }

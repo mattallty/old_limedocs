@@ -5,20 +5,28 @@ parameters:
     generate.title: "Documentation"
 
     generate.bootstrap:  ""
-    generate.extensions: "php|inc"
+    generate.extensions:       "php|inc"
     generate.ignore:     ".git/|.svn/|vendor/"
-    generate.doc-index:  "\@mainpage,MANUAL,MAINPAGE,README"
+    generate.doc-index:  "@@mainpage,MANUAL,MAINPAGE,README"
     generate.examples:   "examples"
 
     generate.show-deprecated: true
     generate.show-protected-members: false
     generate.show-private-members: false
+
     generate.recursive: true
+    generate.follow-symlinks: true
+
+    generate.without-template-cache: false
+    generate.without-finder-cache: false
+
+    generate.finder-cache-ttl: 900
+
 
     # Show docblock when displaying source code
     generate.show-docblock : false
 
     generate.html-tags: "b,strong,i,em,a,ul,ol,li,p,br,var,samp,kbd,tt,pre,code"
-    generate.template : "default@1.0"
+    generate.template: "default/1.0"
 
     generate.logo-css : "width:102px; height:44px; border:none;"

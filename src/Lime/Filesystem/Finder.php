@@ -9,28 +9,33 @@
  */
 namespace Lime\Filesystem;
 
-use Lime\Core;
+use Lime\App\RuntimeParameterAware;
+use Lime\App\TRuntimeParameter;
+use Lime\App\App;
 use Lime\Exception\RuntimeException;
+use Lime\Logger\LoggerAwareInterface;
+use Lime\Logger\TLogger;
 
 /**
  * Finder
- * 
+ *
  * The goal of the Finder class is to find files to generate documentation for,
  * based on paths, extensions, ignore lists, etc.
  *
  */
-class Finder {
-    
+class Finder implements LoggerAwareInterface, RuntimeParameterAware {
+
+
+    use TLogger;
+    use TRuntimeParameter;
+
     /**
      * @var string base directory of source code to search in
      */
-    protected $baseDir;
-    
-    protected $composerFile;
-    protected $composerObj;
-    
+    protected $sourceDir;
+
     protected $package;
-    
+
     /**
      * @var array Array of files found
      */
@@ -41,66 +46,42 @@ class Finder {
 
     /**
      * Constructor
-     * 
-     * @param string $baseDir Base directory to search in
+     *
+     * @param string $sourceDir Base directory to search in
      */
-    final public function __construct($baseDir) {
+    final public function __construct($sourceDir) {
 
-        $this->logger = Core::getLogger();
-        $this->logger->debug('Initializing ' . get_called_class());
-        $this->baseDir = $baseDir;
+        $this->debug('Initializing ' . get_called_class());
 
-        $core = Core::getInstance();
+        $this->sourceDir = $sourceDir;
 
-        if (!is_dir($this->baseDir)) {
+        if (!is_dir($this->sourceDir)) {
             throw new RuntimeException(
-            sprintf('Directory %s does not exists.', $this->baseDir));
-        }
-        
-        $this->composerFile = $this->baseDir. DS. 'composer.json';
-        if(!file_exists($this->composerFile)) {
-            throw new RuntimeException(
-            sprintf('composer.json not found at %s', $this->composerFile));
-        }
-        
-        // read composer 
-        if(!($this->composerObj = json_decode(file_get_contents($this->composerFile)))) {
-            throw new RuntimeException('Cannot parse composer file '.$this->composerFile);
-        }
-        
-        if(!isset($this->composerObj->name) || empty($this->composerObj->name)) {
-            throw new RuntimeException('Cannot detect package name from composer file '.$this->composerFile);
-        }
-        
-        $this->package = $this->composerObj->name;
-        
-        $this->analysePsr();
-        
-        $core->setOption('destination', $core->getOption('destination').DS.$this->package);
-
-        if (!is_string(($extensions = $core->getOption('extensions')))) {
-            throw new RuntimeException('Argument "extension" must be a string.');
+                sprintf('Directory %s does not exists.', $this->sourceDir)
+            );
         }
 
-        if (!is_string(($ignore = $core->getOption('ignore')))) {
+        if (!is_string(($extensions = $this->getParameter('generate.extensions')))) {
+            throw new RuntimeException('Argument "extensions" must be a string.');
+        }
+
+        if (!is_string(($ignore = $this->getParameter('generate.ignore')))) {
             throw new RuntimeException('Argument "ignore" must be a string.');
         }
 
         // Redraw 'extensions' to a regular expression
-        $extensionsArray = array_map('preg_quote', explode('|', $extensions));
-
-        $core->setOption('extensions', implode('|', $extensionsArray));
+        $this->setParameter('generate.extensions', implode('|',
+            array_map('preg_quote', explode('|', $extensions)))
+        );
 
         // If needed, redraw 'ignore' to a regular expression
         if ($ignore) {
             $ignoreArray = array_map('preg_quote', explode('|', $ignore));
-            $core->setOption('ignore', implode('|', $ignoreArray));
+            $this->setParameter('generate.ignore', implode('|', $ignoreArray));
         }
 
         $this->findFiles();
     }
-
-
 
     /**
      * Find matching source-code files through the filesystem
@@ -109,44 +90,44 @@ class Finder {
      */
     public function &findFiles()
     {
-        $logger = $this->getLogger();
-        $core = Core::getInstance();
+        $app = App::getInstance();
+        $cache = $app->get('cache');
 
-        $logger->debug('Trying to find files in ' . $this->baseDir);
-
+        $this->debug('Trying to find files in ' . $this->sourceDir);
 
         // get all all options
-        $cacheKey = md5('finder.' . serialize($core->getOption()));
+        $cacheKey = md5('finder.' . serialize($this->getParameters()));
 
-        if (!$core->getOption('finder-cache-disable') &&
-            ($this->fileset = Core::getCache()->get($cacheKey))) {
-            $logger->debug('Finder fileset taken from cache');
+        if (!$this->getParameter('generate.without-finder-cache') &&
+            ($this->fileset = $cache->fetch($cacheKey))) {
+            $this->debug('Finder fileset taken from cache');
             return $this->fileset;
         }else{
-            $logger->debug('Finder is going to fetch a fresh fileset from filesystem. '.
-                '(finder-cache-disable='.$core->getOption('finder-cache-disable').')');
+            $this->debug('Finder is going to fetch a fresh fileset from filesystem. '.
+                '(without-finder-cache='.$this->getParameter('generate.without-finder-cache').')');
         }
 
         // Do not return '.' and '..' entries
         $flags = \FilesystemIterator::SKIP_DOTS;
 
         // shall we follow symlinks ?
-        if (!$core->getOption('no-follow')) {
+        if ($this->getParameter('generate.follow-symlinks')) {
             $flags |= \FilesystemIterator::FOLLOW_SYMLINKS;
         }
 
         // match file extensions
-        $extensions = $core->getOption('extensions');
+        $extensions = $this->getParameter('generate.extensions');
 
         // ignore patterns
-        $ignore = $core->getOption('ignore');
+        $ignore = $this->getParameter('generate.ignore');
 
-        $dirIterator = new \RecursiveDirectoryIterator($this->baseDir, $flags);
+        $dirIterator = new \RecursiveDirectoryIterator($this->sourceDir, $flags);
         $iterator = new \RecursiveIteratorIterator($dirIterator,
-            \RecursiveIteratorIterator::SELF_FIRST);
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
 
         // don't search recursively
-        if ($core->getOption('no-recursive')) {
+        if (!$this->getParameter('generate.recursive')) {
             $iterator->setMaxDepth(0);
         }
 
@@ -156,53 +137,42 @@ class Finder {
                 continue;
             }
 
-            $matchExt = preg_match('@' . $extensions . '$@',
-                $file->getExtension());
-
+            $matchExt = preg_match('@' . $extensions . '$@', $file->getExtension());
             $pathName = $file->getPathname();
 
-            if ($matchExt && (!$ignore || !preg_match('@' . $ignore . '@',
-                        $pathName))) {
-                $this->fileset[$pathName] = FileInfoFactory::factory($pathName);
+            if ($matchExt &&
+                (!$ignore || !preg_match('@' . $ignore . '@', $pathName))) {
+                    $this->debug("Finder found file $pathName");
+                    $this->fileset[$pathName] = FileInfoFactory::factory($pathName);
             } else {
-                $logger->debug('Ignoring file ' . $pathName);
+                $this->debug("Finder ignored file $pathName");
             }
         }
 
-        Core::getCache()->set($cacheKey, $this->fileset, $core->getOption('finder-cache-duration'));
-        return $this->fileset;
-    }
+        $cache->save($cacheKey, $this->fileset,
+            $this->getParameter('generate.finder-cache-ttl')
+        );
 
-    
-    
-    protected function analysePsr() {
-        if(!isset($this->composerObj->autoload) || !isset($this->composerObj->autoload->{'psr-0'})) {
-            throw new RuntimeException('Cannot find "autoload" or "psr-0" key in composer.json');
-        }
-        foreach ($this->composerObj->autoload->{'psr-0'} as $namespace => $path) {
-            //var_dump($namespace, $path);
-        }
-        //exit;
-       // var_dump($this->composerObj->autoload);exit;
+        return $this->fileset;
     }
 
     /**
      * Get files found by the finder
-     * 
+     *
      * @return array fileset of matching files
      */
     final public function getFileset() {
         return $this->fileset;
     }
-    
+
     /**
      * Gets one file from the fileset
-     * 
+     *
      * @param string $filepath File path to search for
      * @return mixed Returns a {DoculizrFileInfo} or null
      */
     final public function getFileFromFileset($filepath) {
-        return isset($this->fileset[$filepath]) ? 
+        return isset($this->fileset[$filepath]) ?
                 $this->fileset[$filepath] : null;
     }
 
@@ -220,12 +190,12 @@ class Finder {
 
     /**
      * Get all interfaces found in fileset
-     * 
+     *
      * @return array
      */
     final public function getInterfacesInFileset() {
         $interfaces = array();
-        /* @var $fileInfo Lime\Finder\FileInfo */
+        /* @var $fileInfo \Lime\Filesystem\FileInfo */
         foreach ($this->fileset as $fileInfo) {
             $interfaces = array_merge($interfaces, $fileInfo->getInterfaces());
         }
@@ -234,12 +204,12 @@ class Finder {
 
     /**
      * Get all classes found in fileset
-     * 
+     *
      * @return array
      */
     final public function getClassesInFileset() {
         $classes = array();
-        /* @var $fileInfo Lime\Finder\FileInfo */
+        /* @var $fileInfo \Lime\Filesystem\FileInfo */
         foreach ($this->fileset as $fileInfo) {
             $classes = array_merge($classes, $fileInfo->getClasses());
         }
@@ -248,12 +218,12 @@ class Finder {
 
     /**
      * Get all namespaces found in fileset
-     * 
+     *
      * @return array
      */
     final public function getNamespacesInFileset() {
         $ns = array();
-        /* @var $fileInfo Lime\Finder\FileInfo */
+        /* @var $fileInfo \Lime\Filesystem\FileInfo */
         foreach ($this->fileset as $fileInfo) {
             $ns = array_merge($ns, $fileInfo->getNamespaces());
         }
@@ -265,6 +235,7 @@ class Finder {
      *
      * @param string $pathname File path
      * @param FileInfo $fileinfo new file information
+     * @return $this
      */
     final public function updateFileInfo($pathname, FileInfo $fileinfo) {
         $this->fileset[$pathname] = $fileinfo;
@@ -272,9 +243,9 @@ class Finder {
     }
 
     /**
-     * Get the documentation tree, ie, an array of all namespaces, traits/classes, 
+     * Get the documentation tree, ie, an array of all namespaces, traits/classes,
      * interfaces, and methods that have been grabbed.
-     * 
+     *
      * @return array
      */
     function getDocumentationTree() {
@@ -282,15 +253,15 @@ class Finder {
     }
 
     /**
-     * Analyse the file set and build the file tree that can be retrieved by 
+     * Analyse the file set and build the file tree that can be retrieved by
      * {getDocumentationTree()}
-     * 
+     *
      * @return void
      * @changelog 1.1 Added 'hasTraits' table key.
      */
     final public function analyseFileset() {
         foreach ($this->getFileset() as $file => $fileInfo) {
-            $this->getLogger()->info("Parsing file $file");
+            $this->info("Parsing file $file");
             $fileInfo->analyse();
         }
         $this->namespaces['global'] = array(

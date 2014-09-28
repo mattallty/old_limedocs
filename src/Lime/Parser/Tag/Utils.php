@@ -19,7 +19,7 @@ namespace Lime\Parser\Tag;
  * @subpackage Tags
  */
 class Utils {
-    
+
     /** @var array tag aliases */
     public static $tagAliases = array(
         'deprec' => 'deprecated',
@@ -40,18 +40,18 @@ class Utils {
         return isset(self::$tagAliases[$tagname]) ?
                 self::$tagAliases[$tagname] : null;
     }
-    
+
     public static function addTagAlias($alias, $tag) {
         self::$tagAliases[$alias] = $tag;
     }
-    
+
     public static function removeTagAlias($alias) {
         unset(self::$tagAliases[$alias]);
     }
-    
-    
-    
-    
+
+
+
+
 
     /**
      * @alias getTagAlias()
@@ -63,12 +63,12 @@ class Utils {
 
     public static function factory($tagName, $tagValue, $fileInfo, $refObject)
     {
-        $clsTag = '\Doculizr\Tags\Tag' . ucfirst($tagName);
+        $clsTag = '\Lime\Parser\Tag\Tag' . ucfirst($tagName);
 
         // tag does not exists , check in aliases
         if (!class_exists($clsTag)) {
             if (($alias = self::getTagAlias($tagName))) {
-                $clsTag = '\Doculizr\Tags\Tag' . ucfirst($alias);
+                $clsTag = '\Lime\Parser\Tag\Tag' . ucfirst($alias);
             } else {
                 return false;
             }
@@ -197,13 +197,13 @@ class Utils {
         return array('url' => $parts[0],
             'text' => isset($parts[1]) ? $parts[1] : $parts[0]);
     }
-    
+
     /**
      * @todo Implement method
      */
     public static function detectFileString($strFile) {
         return false;
-        
+
     }
 
 }

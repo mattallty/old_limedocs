@@ -10,8 +10,6 @@
 
 namespace Lime\Parser\Tag;
 
-use \Doculizr\Core;
-
 /**
  * The <code>inheritdoc</code> Tag
  *
@@ -41,7 +39,7 @@ class TagInheritdoc extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @inheritdoc tag');
+        $this->debug('Parsing @inheritdoc tag');
         return true;
     }
 

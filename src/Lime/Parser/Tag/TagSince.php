@@ -10,8 +10,6 @@
 
 namespace Lime\Parser\Tag;
 
-use \Doculizr\Core;
-
 /**
  * The <code>since</code> Tag
  *
@@ -41,7 +39,7 @@ class TagSince extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @since tag');
+        $this->debug('Parsing @since tag');
         return trim($tagValue);
     }
 

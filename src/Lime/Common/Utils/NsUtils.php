@@ -10,9 +10,9 @@
 
 namespace Lime\Common\Utils;
 
-use Lime\Reflection\ReflectionFactory;
 use Lime\Filesystem\FileInfo;
-use Michelf\MarkdownExtra;
+use Lime\Common\Utils\PhpLangUtils;
+use Lime\Common\Utils\StrUtils;
 
 
 /**
@@ -78,7 +78,7 @@ class NsUtils {
             if (in_array($type, array('$this', 'self', 'this'))) {
                 $elements[$typeIndex] = $refObject->class;
 
-            } elseif (!self::isNativeType($type) && !self::isFullyScoped($type)) {
+            } elseif (!PhpLangUtils::isNativeType($type) && !self::isFullyScoped($type)) {
 
                 $typeTopLevel = self::getNamespaceTopLevel($type);
 
@@ -93,7 +93,7 @@ class NsUtils {
                 }
             }
 
-            $elements[$typeIndex] = self::stripStartBackslash($elements[$typeIndex]);
+            $elements[$typeIndex] = self::stripLeadingBackslash($elements[$typeIndex]);
         }
 
         return implode('|', $elements);
@@ -115,4 +115,6 @@ class NsUtils {
     {
         return substr($element, 0, 1) === '\\';
     }
+
+
 }

@@ -10,8 +10,6 @@
 
 namespace Lime\Parser\Tag;
 
-use Doculizr\Core;
-
 /**
  * The <code>alias</code> Tag
  *
@@ -60,7 +58,7 @@ class TagAlias extends AbstractTag {
             if (($data = $this->parseScopedElement($scopedElemParts))) {
                 return $data;
             }
-            Core::getLogger()->warn('Cannot parse @alias tag "' . $tagVal .'" in ' . $this->getRefObject());
+            $this->warning('Cannot parse @alias tag "' . $tagVal .'" in ' . $this->getRefObject());
             return false;
         }
 
@@ -87,7 +85,7 @@ class TagAlias extends AbstractTag {
         }
 
 
-        Core::getLogger()->warn('Cannot parse @alias tag : ' . $tagVal);
+        $this->warning('Cannot parse @alias tag : ' . $tagVal);
         return false;
     }
 
@@ -100,7 +98,7 @@ class TagAlias extends AbstractTag {
 
         if (($parsed = $this->parseMultiFormat($tagValue))) {
             $data = $parsed;
-            Core::getLogger()->debug("@alias tag ($tagValue) parsed : " .
+            $this->debug("@alias tag ($tagValue) parsed : " .
                   json_encode($parsed));
         }
 

@@ -9,21 +9,24 @@
  */
 namespace Lime\Reflection;
 
+use Lime\Common\Utils\NsUtils;
+use Lime\Logger\LoggerAwareInterface;
+use Lime\Logger\TLogger;
 use Lime\Parser\Parser;
 use Lime\Filesystem\FileInfo;
 use Lime\Filesystem\FileInfoFactory;
-use Lime\Common\Utils;
-use Lime\Core;
+use Lime\Common\Utils\PhpLangUtils;
 
 /**
  * Reflection class handling class methods
  */
-class ReflectionMethod extends \ReflectionMethod implements IMetaData {
-    
+class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwareInterface {
+
     // use the TMetaData trait
     use TMetaData;
     use TSourceCode;
-    
+    use TLogger;
+
     /**
      * @var ReflectionClass Inherited class object
      */
@@ -32,7 +35,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
      * @var FileInfo File win which the method is declared.
      */
     protected $fileInfo;
-    
+
     /**
      * @var ReflectionClass Class in which is declared the method.
      */
@@ -50,18 +53,18 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
      * Private visibility
      */
     const VISIBILITY_PRIVATE = 'private';
-    
+
     /**
      * Creates a new {ReflectionMethod} from a class name, the name
      * of the method, and the related file.
-     * 
+     *
      * @param string $class Class name in which is declared the method.
      * @param string $name Name of the method.
      * @param FileInfo $fileInfo File in which is declared the method.
      */
     public function __construct($class, $name, FileInfo $fileInfo)
     {
-        Core::getLogger()->info("Analysing method $class::$name()");
+        $this->info("Analysing method $class::$name()");
         parent::__construct($class, $name);
 
         $this->fileInfo = $fileInfo;
@@ -70,24 +73,24 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
             Parser::parseDocComment($this->getDocComment(), $this->fileInfo, $this)
         );
     }
-    
+
     /**
      * Handles methods heritage through the class tree
      */
     public function setupDocHeritage() {
-        
+
         if($this->inheritDoc()) {
-            
+
             $found = false;
-            
+
             $classTree = $this->getClassObjectsTree();
-            
+
             foreach($classTree as $parentClass) {
                 if(($method = $parentClass->getMethod($this->getShortName()))) {
-                    Core::getLogger()->info("Method ".$this->getName()." FOUND in parent class ".$parentClass->getName());
+                    $this->info("Method ".$this->getName()." FOUND in parent class ".$parentClass->getName());
                     if(($meta = $method->getMetaData())) {
                         if(!isset($meta['inheritdoc'])) {
-                            Core::getLogger()->info("Metadata found for ".
+                            $this->info("Metadata found for ".
                                     $this->getName().
                                     " in parent class ".$parentClass->getName() .
                                     " ".  json_encode($meta));
@@ -96,23 +99,23 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
                             break;
                         }
                     }else{
-                        Core::getLogger()->info("No metadata for ".$this->getName()." in parent class ".$parentClass->getName());
+                        $this->info("No metadata for ".$this->getName()." in parent class ".$parentClass->getName());
                     }
                 }else{
-                    Core::getLogger()->info("Method ".$this->getName()." NOT FOUND in parent class ".$parentClass->getName());
+                    $this->info("Method ".$this->getName()." NOT FOUND in parent class ".$parentClass->getName());
                 }
             }
-            
+
             if(!$found) {
                 /**
                  * @todo Add reporting here
                  */
-                Core::getLogger()->warn("Method ".$this->getClass()->name.'::'.
+                $this->warning("Method ".$this->getClass()->name.'::'.
                         $this->getName()." has tag @inheritdoc but Limedocs ".
                         "cannot found any documentation in class tree.");
-                
+
             }
-            
+
             /*if($this->getName() === 'getDescription') {
                 $kets = array_keys($classTree);
                 var_dump($kets, $meta, $this->metadata);
@@ -120,7 +123,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
             }*/
         }
     }
-    
+
     public function getSees() {
         $ret = array();
         foreach($this->getMetaData('tags') as $key => $val) {
@@ -144,7 +147,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         return $ret;
     }
-    
+
     /**
      * Get changes from the `changelog` tag
      * @return array Returns an array of changes strings
@@ -160,7 +163,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         return $ret;
     }
-    
+
     /**
      * Get the method's return type
      * @return string Returns the type string
@@ -179,28 +182,28 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         if(empty($type)) {
             return;
         }
-        
+
         $ret = array();
-        $nativeTypes = Utils::getNativeTypes();
+        $nativeTypes = PhpLangUtils::getNativeTypes();
         foreach(explode('|', $type) as $type_str) {
             if(in_array($type_str, $nativeTypes)) {
                 $ret[] = $type_str;
             }else{
                 $ret[] = '<a href="'.strtolower(str_replace('\\', '.', $type_str)).'.html">'.
-                            Utils::getElementShortName($type_str) .
+                            NsUtils::getElementShortName($type_str) .
                             //$type_str .
                          '</a>';
             }
         }
         return implode('|', $ret);
     }
-    
+
     public function isTraitMethod() {
         $classFile = $this->getDeclaringClass()->getFilename();
         $realFile = $this->getFileName();
         return !($classFile === $realFile);
     }
-    
+
     private function getClassObjectsTree() {
         $ret = array();
         foreach($this->getClass()->getInterfaceNames() as $itfName) {
@@ -208,7 +211,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
             $fileInfo = FileInfoFactory::factory($itfTmpObj->getFilename());
             $ret[$itfName] = ReflectionFactory::factory(
                         'Lime\Reflection\ReflectionClass',
-                        $itfName, 
+                        $itfName,
                         $fileInfo);
         }
         if(($parentClass = $this->getInherits())) {
@@ -222,7 +225,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
                             $fileInfo = FileInfoFactory::factory($itfTmpObj->getFilename());
                             $ret[$itfName] = ReflectionFactory::factory(
                                         'Lime\Reflection\ReflectionClass',
-                                        $itfName, 
+                                        $itfName,
                                         $fileInfo);
                         }
                     }
@@ -232,11 +235,11 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         return $ret;
     }
-    
-    
+
+
     /**
      * Check if method documentation is inherited
-     * 
+     *
      * @return boolean
      */
     protected function inheritDoc() {
@@ -257,19 +260,19 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
             return 'protected';
         }
     }
-    
+
     /**
      * Get method's class
-     * 
+     *
      * @return ReflectionClass
      */
     public function getClass() {
         return $this->_class;
     }
-    
+
     /**
      * Sets associated class
-     * 
+     *
      * @param ReflectionClass $class The {ReflectionClass} instance
      * @return ReflectionMethod
      */
@@ -279,8 +282,8 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
     }
 
     /**
-     * Set parent class 
-     * 
+     * Set parent class
+     *
      * @param ReflectionClass $class Parent Class object
      * @return ReflectionMethod
      */
@@ -289,9 +292,9 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         $this->inheritsFromClass = $class;
         return $this;
     }
-    
+
     public function getDocFileName($extension = 'html') {
-        
+
         if($this->isInherited() && ($parent = $this->getInherits())) {
             $class = $parent;
         }elseif($this->isTraitMethod()) {
@@ -300,12 +303,12 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
                 $class = new \ReflectionClass($traits[0]);
             }else{
                 foreach($traits as $trait) {
-                    
+
                     $fileInfo = FileInfoFactory::factory($this->getFilename());
-                    
+
                     $traitClass = ReflectionFactory::factory('Lime\Reflection\ReflectionClass',
                                     $trait, $fileInfo);
-                    
+
                     if($traitClass->getMethod($this->getShortName())) {
                         $class = $traitClass;
                         break;
@@ -322,51 +325,51 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
             var_dump($class);
             exit;
         }
-        
+
         return strtolower(str_replace('\\', '.', $class->name).'.'.$this->name).'.'.$extension;
     }
-    
-    
+
+
     public function getCode() {
         $docBlockLines = count(explode("\n", $this->getDocComment()));
-        $code = implode('', 
+        $code = implode('',
             array_slice(
-                file($this->getFileName()), 
-                $this->getStartLine() - 1 - $docBlockLines, 
+                file($this->getFileName()),
+                $this->getStartLine() - 1 - $docBlockLines,
                 $this->getEndLine() - $this->getStartLine() + 1 + $docBlockLines
             )
         );
         return str_replace('<', '&lt;', $code);
     }
-    
+
 
     /**
      * Get parent class
-     * 
+     *
      * @return ReflexionClass
      */
     public function getInherits()
     {
         return $this->inheritsFromClass;
     }
-    
-    
+
+
     public function getParametersForDocumentation() {
-        $params = $this->getParameters();
+        $params = parent::getParameters();
         if(!count($params)) {
             return array();
         }
         $resp = array();
         foreach ($params as $param) {
            $resp[$param->getName()]  = array(
-               'type' => $this->getParameterType($param), 
+               'type' => $this->getParameterType($param),
                'description' => $this->getParameterDescription($param)
            );
         }
-        
+
         return $resp;
     }
-    
+
     protected function getParameterDescription($param) {
         $meta = $this->getMetaData('tags');
         $default = '<span class="muted">No description.</span>';
@@ -382,7 +385,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         return $default;
     }
-    
+
     /**
      * Get the parameter type from documentation
      * @param string $param Parameter name
@@ -402,21 +405,21 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         return null;
     }
-    
-    
+
+
     /**
      * Returns method's parameters as a string to be used in method synopsis
-     * 
+     *
      * @return string Parameters string
      */
     public function getParametersAsString() {
-        $params = $this->getParameters();
+        $params = parent::getParameters();
         if(!count($params)) {
             return '';
         }
-        $nativeTypes = Utils::getNativeTypes();
-        $response = ' '; // 
-        $counter = 0; 
+        $nativeTypes = PhpLangUtils::getNativeTypes();
+        $response = ' '; //
+        $counter = 0;
         $hasOptional = 0;
         foreach ($params as $param) {
             $sParam = '';
@@ -432,7 +435,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
                     $sParam .= '<span class="modifier">'.$classType.'</span> ';
                 }else{
                     $sParam .= '<span class="modifier"><a href="'.strtolower(str_replace('\\', '.', $classType)).'.html">'.
-                                Utils::getElementShortName($classType) .
+                                NsUtils::getElementShortName($classType) .
                                 //$type_str .
                              '</a></span> ';
                 }
@@ -442,7 +445,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
                 $sParam .= '&';
             }
             $sParam .= '<span class="variable">$'.$param->getName().'</span>';
-            
+
             if($param->isDefaultValueAvailable()) {
                 $def = $param->getDefaultValue();
                 if(is_null($def)) {
@@ -462,17 +465,17 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
             $response .= $sParam.' ';
             $counter++;
         }
-        
+
         $response.= str_repeat(']', $hasOptional);
         $response.= $hasOptional ? ' ' : '';
-        
-        
+
+
         return $response;
     }
-    
+
     /**
      * Get the parameter type
-     * 
+     *
      * @param string $param Parameter string
      * @return string|null Type
      */
@@ -481,11 +484,11 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         preg_match('/\[\s\<\w+?>\s([\w\\\]+)/s', $param->__toString(), $matches);
         return isset($matches[1]) ? $matches[1] : $this->getParameterDocumentedType($param);
     }
-    
+
     /**
      * Extract parameter name from string
-     * 
-     * @param string $parameter Parameter string 
+     *
+     * @param string $parameter Parameter string
      * @return string Parameter name
      */
     private function getParameterNameFromString($parameter) {
@@ -493,10 +496,10 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         $rep = preg_replace('@Parameter #[0-9]+ \[ (<[a-z ]+>) ([a-zA-Z\\&\$_=\'\(\) ]+) \]@', '$2', $parameter);
         return $rep;
     }
-    
+
     /**
-     * Check if the methods is inherited. 
-     * 
+     * Check if the methods is inherited.
+     *
      * @return boolean
      */
     public function isInherited() {
@@ -506,7 +509,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         $parent = $this->getInherits();
         if($this->getDeclaringClass()->getFileName() !== $this->getFileName()
-            && (!$parent || !$parent->isInterface())    
+            && (!$parent || !$parent->isInterface())
                 ) {
             return true;
         }
@@ -516,7 +519,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         return false;
     }
-    
+
     public function hasReturnValueDocumented() {
         if(($meta = $this->getMetaData('return'))) {
             if(isset($meta['description']) && !empty($meta['description'])) {
@@ -525,15 +528,15 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         return false;
     }
-    
+
     /**
-     * Get short description of the method 
-     * 
+     * Get short description of the method
+     *
      * @return string
      */
     public function getShortDescription() {
         if(!$this->isUserDefined()) {
-            return Core::getQuickRef($this->name, $this->getDeclaringClass()->name);
+            return PhpLangUtils::getQuickRef($this->name, $this->getDeclaringClass()->name);
         }
         $meta = $this->getMetaData();
         if(isset($meta['shortDescription'])) {
@@ -544,11 +547,11 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData {
         }
         return '<span class="muted">No description.</span>';
     }
-    
-    
+
+
     /**
      * Get long description of the method, fallback to the short one if needed.
-     * 
+     *
      * @return string
      */
     public function getLongDescription() {

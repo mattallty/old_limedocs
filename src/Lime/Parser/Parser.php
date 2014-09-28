@@ -9,17 +9,29 @@
  */
 namespace Lime\Parser;
 
+use Lime\App\TRuntimeParameter;
 use Lime\Common\Utils as LimeUtils;
+use Lime\Common\Utils\StrUtils;
 use Lime\Filesystem\FileInfo;
-use Lime\Core;
+use Lime\App\App;
+use Lime\Filesystem\Finder;
+use Lime\Logger\TLogger;
+use Lime\Logger\LoggerAwareInterface;
+use Lime\App\RuntimeParameterAware;
+use Lime\Common\Utils\NsUtils;
+use Lime\Parser\Tag\Utils as TagUtils;
 
 /**
  * Parser
  */
-class Parser {
+class Parser implements LoggerAwareInterface, RuntimeParameterAware {
+
+
+    use TLogger;
+    use TRuntimeParameter;
 
     /**
-     * @var \Doculizr\Finder\IFinder Finder instance
+     * @var \Lime\Filesystem\Finder Finder instance
      */
     protected $finder;
 
@@ -32,18 +44,18 @@ class Parser {
     /**
      * Constructor
      *
-     * @param \Doculizr\Finder\IFinder $finder A IFinder instance
+     * @param Finder $finder A Finder instance
      * @param array $options Options
      */
-    final public function __construct(IFinder &$finder)
+    final public function __construct(Finder &$finder)
     {
         $this->finder = &$finder;
 
-        if (($bootstrap = Core::getInstance()->getOption('bootstrap'))) {
+        if (($bootstrap = $this->getParameter('generate.bootstrap'))) {
             require_once($bootstrap);
         }
 
-        $this->parse();
+
     }
 
     /**
@@ -57,7 +69,7 @@ class Parser {
          * First, parse files metadata
          */
         foreach ($this->finder->getFileset() as $file => $fileInfo) {
-            $this->getLogger()->info("Parsing file $file");
+            $this->info("Parsing file $file");
             $fileInfo = $this->parseFile($fileInfo);
             $fileInfo->setFunctions(LimeUtils::getGlobalFunctions($fileInfo));
             $this->finder->updateFileInfo($file, $fileInfo);
@@ -110,7 +122,7 @@ class Parser {
                 if (count($regs)) {
                     $tags[] = array('name' => $regs[1],
                         'value' => empty($regs[2]) ? true : $regs[2]);
-                    
+
                     if($regs[1] === 'inheritdoc') {
                         $infos[$regs[1]] = true;
                     }
@@ -132,33 +144,33 @@ class Parser {
         }
 
         $parsedTags = array();
-        $logger = Core::getInstance()->getLogger();
+        $logger = App::getInstance()->get('logger');
 
         foreach ($tags as $tagProps) {
 
-            if (($obj = Utils::factory($tagProps['name'], $tagProps['value'],
+            if (($obj = TagUtils::factory($tagProps['name'], $tagProps['value'],
                             $fileInfo, $refObject))) {
 
                 $tagName = $obj->getTag();
                 $parsedData = $obj->getParsedData();
-                
+
                 $parsedTags[] = array($tagName => $parsedData);
-                
+
                 if(!isset($infos[$tagName])) {
                     $infos[$tagName] = $parsedData;
                 }
 
                 // unknown tag
             } else {
-                $logger->warn('Unrecognized tag @' . $tagProps['name']);
+                $logger->warning('Unrecognized tag @' . $tagProps['name']);
             }
         }
 
         $shortDesc = trim($desc['short']);
         $longDesc = trim($desc['long']);
 
-        empty($shortDesc) or $infos['shortDescription'] = LimeUtils::formatDescription($shortDesc, $fileInfo, $refObject);
-        empty($longDesc) or $infos['longDescription'] = LimeUtils::formatDescription($longDesc, $fileInfo, $refObject);
+        empty($shortDesc) or $infos['shortDescription'] = StrUtils::formatDescription($shortDesc, $fileInfo, $refObject);
+        empty($longDesc) or $infos['longDescription'] = StrUtils::formatDescription($longDesc, $fileInfo, $refObject);
         empty($parsedTags) or $infos['tags'] = $parsedTags;
 
         return $infos;
@@ -166,7 +178,7 @@ class Parser {
 
     /**
      * Detect public Classes, methods and functions contained in a file
-     * 
+     *
      * @return FileInfo Augmented DoculizrFileInfo file object
      */
     protected function parseFile(FileInfo $fileObject)
@@ -264,10 +276,10 @@ class Parser {
         }
 
         return $fileObject
-                        ->setNamespaces(LimeUtils::stripStartBackslash($namespaces))
-                        ->setUses(LimeUtils::stripStartBackslash($uses))
-                        ->setClasses(LimeUtils::stripStartBackslash($classes))
-                        ->setInterfaces(LimeUtils::stripStartBackslash($interfaces));
+                        ->setNamespaces(NsUtils::stripLeadingBackslash($namespaces))
+                        ->setUses(NsUtils::stripLeadingBackslash($uses))
+                        ->setClasses(NsUtils::stripLeadingBackslash($classes))
+                        ->setInterfaces(NsUtils::stripLeadingBackslash($interfaces));
     }
 
 }

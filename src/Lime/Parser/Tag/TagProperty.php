@@ -10,10 +10,9 @@
 
 namespace Lime\Parser\Tag;
 
-use Doculizr\Core;
-use Doculizr\Utils\DoculizrUtils;
-use Doculizr\Reflection\DoculizrReflectionFunction;
-use Doculizr\Reflection\DoculizrReflectionMethod;
+use Lime\Common\Utils\NsUtils;
+use Lime\Reflection\ReflectionFunction;
+use Lime\Reflection\ReflectionMethod;
 
 /**
  * The `property` Tag
@@ -75,20 +74,21 @@ class TagProperty extends AbstractTag {
             if (preg_match($format, $value, $regs)) {
 
                 if ($key) {
-                    Core::getLogger()->warn('Malformed @property tag : "' . $value
+                    $this->warning('Malformed @property tag : "' . $value
                             . '" for function/method ' .
                             $this->getRefObject()->getName() . '() in file ' .
                             $this->getFileInfo()->getFilename() . ':' .
                             $this->getRefObject()->getStartLine());
                 }
 
-                $regs['type'] = DoculizrUtils::stripStartBackslash($regs['type']);
+                $regs['type'] = NsUtils::stripLeadingBackslash($regs['type']);
 
                 return $this->filterNumericIndexes($regs);
             }
         }
 
-        Core::getLogger()->warn('Cannot parse @property tag : ' . $value);
+        $this->warning('Cannot parse @property tag : ' . $value);
+
         return false;
     }
 
@@ -100,10 +100,10 @@ class TagProperty extends AbstractTag {
         // @param tag is retsricted to methods and functions
         $refObj = $this->getRefObject();
 
-        if ($refObj instanceof DoculizrReflectionFunction === false &&
-                $refObj instanceof DoculizrReflectionMethod === false) {
+        if ($refObj instanceof ReflectionFunction === false &&
+                $refObj instanceof ReflectionMethod === false) {
 
-            Core::getLogger()->error(
+            $this->error(
                     sprintf('@property tag is not allowed in %s:%s',
                             $this->getFileInfo()->getFilename(),
                             $refObj->getStartLine())
@@ -113,7 +113,7 @@ class TagProperty extends AbstractTag {
         }
 
 
-        Core::getLogger()->debug('Parsing @property tag : "' . $tagValue . '"');
+        $this->debug('Parsing @property tag : "' . $tagValue . '"');
 
         if (!($data = $this->parseMultiFormat($tagValue))) {
             return false;
@@ -123,7 +123,7 @@ class TagProperty extends AbstractTag {
         $data['type'] = $this->scopeElement($data['type']);
 
 
-        Core::getLogger()->debug('@property tag parsed : ' . json_encode($data));
+        $this->debug('@property tag parsed : ' . json_encode($data));
 
         return $data;
     }

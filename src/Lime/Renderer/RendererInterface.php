@@ -19,72 +19,42 @@
  */
 namespace Lime\Renderer;
 
-use Lime\Template\ITemplate;
+use Lime\Template\TemplateInterface;
 
 /**
  * Renderer interface
  *
  */
-interface IRenderer {
+interface RendererInterface {
 
-    /**
-     * Render documentation by Namspaces
-     */
-    const RENDERING_MODE_NAMESPACES = 'ns';
+    public function __construct(TemplateInterface &$template);
 
-    /**
-     * Render documentation by Packages
-     */
-    const RENDERING_MODE_PACKAGES = 'packages';
-
-    /**
-     * Autodetect Render mode
-     */
-    const RENDERING_MODE_AUTO = 'auto';
-    
-    /**
-     * HTML rendering format
-     */
-    const RENDER_FORMAT_HTML = 'HTML';
-    /**
-     * PHP rendering format
-     */
-    const RENDER_FORMAT_PHP = 'PHP';
-    /**
-     * PDF rendering format
-     */
-    const RENDER_FORMAT_PDF = 'PDF';
-    
-    
-    public function __construct(ITemplate &$template);
-    
     /**
      * Initializer
-     * 
+     *
      * This method must return $this just like a constructor.
      */
     public function init();
     /**
      * Render documentation
-     * 
+     *
      * @return void
      */
     public function render();
     /**
      * Get files extension for generated documentation
-     * 
+     *
      * @return string
      */
-    public function getFilesExtension();
-    public function getRenderFormat();
-    public function getAvailableRenderingModes();
+    public function getFileExt();
+
     /**
      * Build files & directories
-     * 
+     *
      * @return void
      */
-    public function buildTree();
+    public function prepareFilesystem();
     public function getTemplate();
-}
 
-?>
+    public function getOutputDir();
+}

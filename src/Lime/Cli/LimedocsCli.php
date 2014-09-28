@@ -10,13 +10,12 @@
 namespace Lime\Cli;
 
 use Symfony\Component\Console\Application;
-use Lime\App;
 
 class LimedocsCli extends Application
 {
     public function __construct()
     {
-        parent::__construct('Limedocs CLI', App::VERSION);
+        parent::__construct('Limedocs', '@package_version@');
         foreach (glob(__DIR__ . '/Command/*.php') as $file) {
             $command = 'Lime\\Cli\\Command\\' . basename($file, '.php');
             $this->add(new $command);

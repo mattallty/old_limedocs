@@ -6,12 +6,30 @@ services:
   cli:
     class:  \Lime\Cli\LimedocsCli
 
-
   # The logger
   logger:
     class:  \Lime\Logger\LoggerProxy
-    factory_class:  \Lime\App
-    factory_method: getLogger
+
+  # Template
+  templater:
+    factory_class: \Lime\Template\Factory
+    factory_method: create
+    arguments: ["%generate.template%"]
+
+  # The finder
+  finder:
+    class:  \Lime\Filesystem\Finder
+    arguments:  ["%generate.source-dir%"]
+
+  # Parser
+  parser:
+    class:  \Lime\Parser\Parser
+    arguments:  ["@finder"]
+
+  # Renderer
+  renderer:
+    class: \Lime\Renderer\HtmlRenderer
+    arguments:  ["@templater"]
 
   # Limedocs use doctrine/cache providers
   #

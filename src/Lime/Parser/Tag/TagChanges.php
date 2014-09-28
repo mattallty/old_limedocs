@@ -10,11 +10,9 @@
 
 namespace Lime\Parser\Tag;
 
-use \Doculizr\Core;
-
 /**
  * The `deprecated` Tag.
- * 
+ *
  * This tag blabla...
  *
  * @package Doculizr
@@ -43,7 +41,7 @@ class TagChanges extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @changes tag');
+        $this->debug('Parsing @changes tag');
         $elems = explode(' ', $tagValue, 2);
         return (count($elems) === 2) ? $elems : false;
     }

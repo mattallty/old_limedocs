@@ -7,13 +7,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Lime;
+namespace Lime\App;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Psr\Log\LoggerInterface;
+use Lime\Filesystem\Finder;
 
 /**
  * Class App
@@ -29,11 +28,6 @@ class App
      * @var \Symfony\Component\DependencyInjection\ContainerBuilder
      */
     private $container;
-
-    /**
-     * @var LoggerInterface
-     */
-   static private $logger;
 
 
     /**
@@ -51,35 +45,18 @@ class App
         return $this->container;
     }
 
-    public function setLogger(LoggerInterface $logger)
-    {
-        self::$logger = $logger;
-    }
-
-    public static function getLogger()
-    {
-        return self::$logger;
-    }
-
-    public function getParameter($param)
-    {
-        return $this->container->getParameter($param);
-    }
-
-    public function getParameterBag()
-    {
-        return $this->container->getParameterBag();
-    }
-
     /**
-     * Returns a service
+     * Return the finder service instance. (shortcut for `$this->get('finder')`)
      *
-     * @param $srv
-     * @return object
+     * @return Finder
      */
-    public function get($srv)
-    {
-        return $this->container->get($srv);
+    public function getFinder() {
+        return $this->get('finder');
+    }
+
+
+    public function __call($method, $args) {
+        return call_user_func_array(array($this->container, $method), $args);
     }
 
     /**

@@ -10,8 +10,6 @@
 
 namespace Lime\Parser\Tag;
 
-use \Doculizr\Core;
-
 /**
  * The <code>subpackage</code> Tag
  *
@@ -41,7 +39,7 @@ class TagSubpackage extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @subpackage tag');
+        $this->debug('Parsing @subpackage tag');
         return trim($tagValue);
     }
 

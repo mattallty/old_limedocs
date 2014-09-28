@@ -10,8 +10,6 @@
 
 namespace Lime\Parser\Tag;
 
-use \Doculizr\Core;
-
 /**
  * The <code>version</code> Tag
  *
@@ -41,7 +39,7 @@ class TagVersion extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @version tag');
+        $this->debug('Parsing @version tag');
         return trim($tagValue);
     }
 

@@ -41,7 +41,7 @@ class TagPackage extends AbstractTag {
      */
     public function parseData($tagValue)
     {
-        Core::getLogger()->debug('Parsing @package tag');
+        $this->debug('Parsing @package tag');
         return trim($tagValue);
     }
 

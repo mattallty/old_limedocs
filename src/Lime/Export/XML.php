@@ -242,9 +242,9 @@ class XMLDocument extends \DOMDocument {
 
 }
 
-class XML implements IExport {
+class XML implements ExportInterface {
 
-    public function export(IFinder $finder, $toFile)
+    public function export(Finder $finder, $toFile)
     {
         $xml = new DoculizrXMLDocument();
         $xml->buildNodes($finder);

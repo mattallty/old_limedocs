@@ -9,7 +9,7 @@
  */
 namespace Lime\Logger;
 
-
+use \Psr\Log\LoggerInterface;
 /**
  * Logger
  *
@@ -24,7 +24,15 @@ class LoggerProxy {
     /**
      * @param \Psr\Log\LoggerInterface $logger
      */
-    public function __construct(\Psr\Log\LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger = null)
+    {
+        if(!is_null($logger))
+        {
+            $this->setLogger($logger);
+        }
+    }
+
+    public function setLogger(LoggerInterface $logger = null)
     {
         $this->logger = $logger;
     }

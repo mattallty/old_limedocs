@@ -10,7 +10,7 @@
 
 namespace Lime\Parser\Tag;
 
-use \Doculizr\Core;
+use Lime\Common\Utils\StrUtils;
 
 /**
  * Return Tag
@@ -55,7 +55,7 @@ class TagReturn extends AbstractTag {
             '/^(?<type>\$this|self|this)$/',
         );
 
-        Core::getLogger()->debug('Parsing @return tag : "' . $tagValue . '"');
+        $this->debug('Parsing @return tag : "' . $tagValue . '"');
 
         // try to match with available formats
         foreach ($formats as $format) {
@@ -67,28 +67,28 @@ class TagReturn extends AbstractTag {
 
         // no format matched
         if (!$fomatFound) {
-            Core::getLogger()->warn('Cannot parse @return tag : ' . $tagValue);
+            $this->warning('Cannot parse @return tag : ' . $tagValue);
             return false;
         }
 
         // flat array
         $data = $this->filterNumericIndexes($regs);
-        
+
         // redraw type
         $data['type'] = $this->scopeElement($data['type']);
-        
+
         if(isset($data['description'])) {
             $data['description'] = preg_replace_callback('/\{([a-z0-9_\\\]+)\}/i', function($regs) {
-            
+
                 $type = $this->scopeElement($regs[1]);
-                $url = \Doculizr\Utils\DoculizrUtils::objectTypeToFilepath($type);
-                
+                $url = StrUtils::objectTypeToFilepath($type);
+
                 return '<a href="'.$url.'">'.$regs[1].'</a>';
-                
+
             }, $data['description']);
         }
 
-        Core::getLogger()->debug('@return tag parsed : ' . json_encode($data));
+        $this->debug('@return tag parsed : ' . json_encode($data));
 
         return $data;
     }

@@ -9,17 +9,19 @@
  */
 namespace Lime\Cli\Command;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Logger\ConsoleLogger;
-use Lime\App;
+use Lime\App\TRuntimeParameter;
+use Lime\Cli\Command;
+use Lime\App\App;
 
 /**
  * Class handling configuration display
  */
 class ConfigShow extends Command {
+
+
+    use TRuntimeParameter;
 
     /**
      * Configure command
@@ -33,14 +35,15 @@ class ConfigShow extends Command {
                 ->setDescription('Show configuration variables.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function exec(InputInterface $input)
     {
-        $logger = new ConsoleLogger($output);
-        App::getInstance()->setLogger($logger);
+        $app = App::getInstance();
+        $logger = $app->get('logger');
 
+        var_dump(get_defined_functions());
 
         foreach (array('foo' => 'bar', 'far' => 'bim') as $key => $value) {
-            App::getLogger()->notice("<comment>$key : $value</comment>");
+            $logger->info("<comment>$key : $value</comment>");
         }
     }
 

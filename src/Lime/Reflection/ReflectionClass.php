@@ -15,23 +15,26 @@
  */
 namespace Lime\Reflection;
 
+use Lime\Logger\LoggerAwareInterface;
+use Lime\Logger\TLogger;
 use Lime\Parser\Parser;
-use Lime\Finder\FileInfo;
-use Lime\Finder\FileInfoFactory;
+use Lime\Filesystem\FileInfo;
+use Lime\Filesystem\FileInfoFactory;
 use Lime\Common\Utils;
-use Lime\Core;
 
 /**
  * Reflection class handling classes and interfaces
  */
-class ReflectionClass extends \ReflectionClass implements IMetaData {
-    
+class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAwareInterface {
+
     // use the TMetaData trait
     use TMetaData;
-    
+
     // use TSourceCode Trait
     use TSourceCode;
-    
+
+    use TLogger;
+
     /**
      * Class methods
      * @var array
@@ -47,7 +50,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
      * @var array
      */
     protected $properties;
-    
+
     /**
      * File that declares this class
      * @var FileInfo
@@ -56,7 +59,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
 
     public function __construct($name, FileInfo $fileInfo)
     {
-        Core::getLogger()->info("Analysing class $name");
+        $this->info("Analysing class $name");
         parent::__construct($name);
 
         $this->fileInfo = $fileInfo;
@@ -77,7 +80,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
             $this->setInherits($reflexParent);
         }
     }
-    
+
     /**
      * Get constants informations
      * @return array Returns an array of constants names => constants infos.
@@ -114,7 +117,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
     {
         return $this->inheritsFromClass;
     }
-    
+
     /**
      * Get class ancestors
      * @return \Lime\Reflection\ReflectionClass[]
@@ -130,10 +133,10 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
         }
         return array_reverse($ret);
     }
-    
+
     /**
      * Get associated documentation filename
-     * 
+     *
      * @param string $extension Filename extension
      * @return string Return associated documentation filename
      */
@@ -149,7 +152,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
     {
         return $this->fileInfo;
     }
-    
+
     /**
      * Get informations about a specific method
      * @param string $method Method name
@@ -163,7 +166,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
 
     /**
      * Get all methods declared by this class
-     * 
+     *
      * @param integer $filter Flag used to filter properties returned. Use one of the following flag :
      *  - {ReflectionProperty::IS_STATIC}
      *  - {ReflectionProperty::IS_STATIC}
@@ -187,23 +190,23 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
 
                 $declaringClass = $reflexMethod->getDeclaringClass()->getName();
                 $reflexMethod->setClass($this);
-                
+
                 if ($declaringClass != $this->getName()) {
-                    
-                    Core::getLogger()->info("Method {$method->name} in class {$this->getName()} inherits from upper class {$declaringClass}");
-                    
+
+                    $this->info("Method {$method->name} in class {$this->getName()} inherits from upper class {$declaringClass}");
+
                     $fileInfo = FileInfoFactory::factory($reflexMethod->getDeclaringClass()->getFilename());
-                    
+
                     $reflexMethod->setInherits(
                             ReflectionFactory::factory('Lime\Reflection\ReflectionClass',
                                     $declaringClass, $fileInfo));
-                    
+
                 }
 
                 $reflexMethod->setupDocHeritage();
                 $this->methods[$reflexMethod->getShortName()] = $reflexMethod;
             }
-            
+
             ksort($this->methods);
         }
 
@@ -212,9 +215,9 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
 
     /**
      * Get all properties
-     * 
+     *
      * @param type $filter Used for filtering properties.
-     * @return array 
+     * @return array
      */
     public function getProperties($filter = null)
     {
@@ -223,23 +226,23 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
             $reflexProperties = $this->getDefaultProperties();
             $this->properties = array();
             $fileInfo = FileInfoFactory::factory($this->getFilename());
-            
+
             foreach ($reflexProperties as $propName => $defaultValue) {
 
                 $reflexProp = ReflectionFactory::factory(
                     'Lime\Reflection\ReflectionProperty',
-                    $this->getName(), 
+                    $this->getName(),
                     $propName,
                     $fileInfo
                 );
 
                 $reflexProp->setAccessible(true);
                 $reflexProp->setDefault($defaultValue);
-                
+
                 $declaringClass = $reflexProp->getDeclaringClass()->getName();
-                
+
                 if ($declaringClass !== $this->getName()) {
-                    
+
                     $fileInfo = FileInfoFactory::factory($reflexProp->getDeclaringClass()->getFilename());
                     $reflexProp->setInherits(
                             ReflectionFactory::factory('Lime\Reflection\ReflectionClass',
@@ -250,13 +253,13 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
                 $this->properties[$propName] = $reflexProp;
             }
         }
-        
+
         return $this->properties;
     }
 
     /**
      * Gets public methods
-     * 
+     *
      * @see getMethods
      * @param bool $showInherited Also gets inherited methods
      * @return array
@@ -268,7 +271,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
     }
     /**
      * Gets protected methods
-     * 
+     *
      * @see getMethods
      * @param bool $showInherited Also gets inherited methods
      * @return array
@@ -280,7 +283,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
     }
     /**
      * Gets private methods
-     * 
+     *
      * @see getMethods
      * @param bool $showInherited Also gets inherited methods
      * @return array
@@ -290,8 +293,8 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
         return $this->getMethodsByVisibility(\ReflectionMethod::IS_PRIVATE,
                         $showInherited);
     }
-    
-    
+
+
     public function getPossibleDescription() {
         if(!$this->isUserDefined()) {
             return Utils::beautifyDescription(Core::getQuickRef($this->name, $this->getDeclaringClass()->name));
@@ -304,7 +307,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData {
         }
         return false;
     }
-    
+
     public function getShortDescription() {
         if(!$this->isUserDefined()) {
             return Utils::beautifyDescription(Core::getQuickRef($this->name, $this->getDeclaringClass()->name));

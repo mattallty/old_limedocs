@@ -9,7 +9,6 @@
  */
 
 namespace Lime\Parser\Tag;
-use \Doculizr\Core;
 
 /**
  * The <code>author</code> Tag
@@ -54,7 +53,7 @@ class TagAuthor extends AbstractTag {
             '/^' . $name . '/i'
         );
 
-        Core::getLogger()->debug('Parsing @author tag : "' . $tagValue . '"');
+        $this->debug('Parsing @author tag : "' . $tagValue . '"');
 
         // try to match with available formats
         foreach ($formats as $format) {
@@ -66,14 +65,14 @@ class TagAuthor extends AbstractTag {
 
         // no format matched
         if (!$fomatFound) {
-            Core::getLogger()->warn('Cannot parse @author tag : ' . $tagValue);
+            $this->warning('Cannot parse @author tag : ' . $tagValue);
             return false;
         }
 
         // flat array
         $data = array_map('trim', $this->filterNumericIndexes($regs));
 
-        Core::getLogger()->debug('@author tag parsed : ' . json_encode($data));
+        $this->debug('@author tag parsed : ' . json_encode($data));
 
         return $data;
     }
