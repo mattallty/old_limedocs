@@ -38,7 +38,8 @@ class StrUtils
         return $desc;
     }
 
-    public static function formatDescription($description, $fileInfo, $refObject) {
+    public static function formatDescription($description, $fileInfo, $refObject, $nl2br = false) {
+
         $description = preg_replace_callback('/\{([a-z0-9_\\\]+)\}/i',
             function($regs) use($fileInfo, $refObject) {
                 $type = NsUtils::scopeElement($regs[1], $fileInfo, $refObject);
@@ -50,6 +51,10 @@ class StrUtils
             function($regs) use($fileInfo, $refObject) {
                 return '<code>' . $regs[1] . '</code>';
             }, $description);
+
+        if($nl2br) {
+            $description = nl2br($description);
+        }
 
         $markdown = MarkdownExtra::defaultTransform(
             self::beautifyDescription($description)
@@ -63,6 +68,10 @@ class StrUtils
     }
 
 
+    public static function getMethodPrettyName($class, $method)
+    {
+        return substr(strrchr($class, "\\"), 1) . ' :: ' . $method . '()';
+    }
 
 
 }

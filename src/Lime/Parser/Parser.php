@@ -50,7 +50,7 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware
      */
     final public function __construct(Finder &$finder)
     {
-        $this->finder = &$finder;
+        $this->finder = & $finder;
 
         if (($bootstrap = $this->getParameter('generate.bootstrap'))) {
             require_once($bootstrap);
@@ -120,8 +120,10 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware
                 $regs = null;
                 preg_match('/{?@([a-z\-]+)}?\\s?(.*)/', $line, $regs);
                 if (count($regs)) {
-                    $tags[] = array('name' => $regs[1],
-                        'value' => empty($regs[2]) ? true : $regs[2]);
+                    $tags[] = array(
+                        'name' => $regs[1],
+                        'value' => empty($regs[2]) ? true : $regs[2]
+                    );
 
                     if ($regs[1] === 'inheritdoc') {
                         $infos[$regs[1]] = true;
@@ -148,9 +150,12 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware
 
         foreach ($tags as $tagProps) {
             if (($obj = TagUtils::factory(
-                $tagProps['name'], $tagProps['value'],
-                $fileInfo, $refObject
-))) {
+                $tagProps['name'],
+                $tagProps['value'],
+                $fileInfo,
+                $refObject
+            ))
+            ) {
                 $tagName = $obj->getTag();
                 $parsedData = $obj->getParsedData();
 
@@ -169,8 +174,12 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware
         $shortDesc = trim($desc['short']);
         $longDesc = trim($desc['long']);
 
-        empty($shortDesc) or $infos['shortDescription'] = StrUtils::formatDescription($shortDesc, $fileInfo, $refObject);
-        empty($longDesc) or $infos['longDescription'] = StrUtils::formatDescription($longDesc, $fileInfo, $refObject);
+        empty($shortDesc) or $infos['shortDescription'] = StrUtils::formatDescription(
+            $shortDesc,
+            $fileInfo,
+            $refObject
+        );
+        empty($longDesc) or $infos['longDescription'] = StrUtils::formatDescription($longDesc, $fileInfo, $refObject, true);
         empty($parsedTags) or $infos['tags'] = $parsedTags;
 
         return $infos;
@@ -183,10 +192,9 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware
      */
     protected function parseFile(FileInfo $fileObject)
     {
-        if (!$this->getParameter('generate.inception'))
-        {
+        if (!$this->getParameter('generate.inception')) {
             ob_start();
-            include_once ($fileObject->getFilename());
+            include_once($fileObject->getFilename());
             ob_end_clean();
         }
 
@@ -204,80 +212,80 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware
 
 
         $tokensCallbacks = array(
-            self::SEMICOLON => function() use (
-                &$nsFlag,
-                &$useFlag,
-                &$useTmp,
-                &$nsTmp,
-                &$uses,
-                &$namespaces
-) {
-                if ($nsFlag) {
-                    $nsFlag = false;
-                    $namespaces[] = (string) $nsTmp;
-                } elseif ($useFlag) {
-                    $useFlag = false;
-                    $uses[] = $useTmp;
-                }
-            },
+            self::SEMICOLON => function () use (
+                    &$nsFlag,
+                    &$useFlag,
+                    &$useTmp,
+                    &$nsTmp,
+                    &$uses,
+                    &$namespaces
+                ) {
+                    if ($nsFlag) {
+                        $nsFlag = false;
+                        $namespaces[] = (string)$nsTmp;
+                    } elseif ($useFlag) {
+                        $useFlag = false;
+                        $uses[] = $useTmp;
+                    }
+                },
             // this is a namespace word, set the ns flag and nsTmp string
-            T_NAMESPACE => function() use (&$nsFlag, &$nsTmp) {
-                $nsFlag = true;
-                $nsTmp = '\\';
-            },
-            T_CLASS => function() use (&$classFlag, &$topLevelFlag) {
-                $topLevelFlag = $classFlag = true;
-            },
-            T_TRAIT => function() use (&$classFlag, &$topLevelFlag) {
-                $topLevelFlag = $classFlag = true;
-            },
-            T_INTERFACE => function() use (&$interfaceFlag, &$topLevelFlag) {
-                $topLevelFlag = $interfaceFlag = true;
-            },
-            T_STRING => function($token) use (
-                &$interfaceFlag,
-                &$interfaces,
-                &$namespaces,
-                &$classFlag,
-                &$classes,
-                &$nsFlag,
-                &$nsTmp,
-                &$useTmp,
-                &$useFlag
-) {
-                if ($interfaceFlag) {
-                    $currentNs = end($namespaces);
-                    $interfaces[] = $currentNs . '\\' . $token[1];
-                    $interfaceFlag = false;
-                } elseif ($classFlag) {
-                    $currentNs = end($namespaces);
-                    $classes[] = $currentNs . '\\' . $token[1];
-                    $classFlag = false;
-                } elseif ($nsFlag) {
-                    $nsTmp .= trim($token[1]);
-                } elseif ($useFlag) {
-                    $useTmp .= trim($token[1]);
+            T_NAMESPACE => function () use (&$nsFlag, &$nsTmp) {
+                    $nsFlag = true;
+                    $nsTmp = '\\';
+                },
+            T_CLASS => function () use (&$classFlag, &$topLevelFlag) {
+                    $topLevelFlag = $classFlag = true;
+                },
+            T_TRAIT => function () use (&$classFlag, &$topLevelFlag) {
+                    $topLevelFlag = $classFlag = true;
+                },
+            T_INTERFACE => function () use (&$interfaceFlag, &$topLevelFlag) {
+                    $topLevelFlag = $interfaceFlag = true;
+                },
+            T_STRING => function ($token) use (
+                    &$interfaceFlag,
+                    &$interfaces,
+                    &$namespaces,
+                    &$classFlag,
+                    &$classes,
+                    &$nsFlag,
+                    &$nsTmp,
+                    &$useTmp,
+                    &$useFlag
+                ) {
+                    if ($interfaceFlag) {
+                        $currentNs = end($namespaces);
+                        $interfaces[] = $currentNs . '\\' . $token[1];
+                        $interfaceFlag = false;
+                    } elseif ($classFlag) {
+                        $currentNs = end($namespaces);
+                        $classes[] = $currentNs . '\\' . $token[1];
+                        $classFlag = false;
+                    } elseif ($nsFlag) {
+                        $nsTmp .= trim($token[1]);
+                    } elseif ($useFlag) {
+                        $useTmp .= trim($token[1]);
+                    }
+                },
+            T_USE => function () use (&$useFlag, &$useTmp, &$topLevelFlag) {
+                    if ($topLevelFlag) {
+                        return;
+                    }
+                    $useFlag = true;
+                    $useTmp = '';
+                },
+            '___default___' => function ($token) use (
+                    &$nsFlag,
+                    &$useFlag,
+                    &$useTmp,
+                    &$nsTmp
+                ) {
+                    if ($nsFlag) {
+                        $nsTmp .= trim($token[1]);
+                    } elseif ($useFlag) {
+                        $useTmp .= trim($token[1]);
+                    }
                 }
-            },
-            T_USE => function() use (&$useFlag, &$useTmp, &$topLevelFlag) {
-                if ($topLevelFlag) {
-                    return;
-                }
-                $useFlag = true;
-                $useTmp = '';
-            },
-            '___default___' => function($token) use (
-                &$nsFlag,
-                &$useFlag,
-                &$useTmp,
-                &$nsTmp
-) {
-                if ($nsFlag) {
-                    $nsTmp .= trim($token[1]);
-                } elseif ($useFlag) {
-                    $useTmp .= trim($token[1]);
-                }
-            }
         );
 
         foreach ($tokens as $token) {
@@ -294,10 +302,10 @@ class Parser implements LoggerAwareInterface, RuntimeParameterAware
         }
 
         return $fileObject
-                        ->setNamespaces(NsUtils::stripLeadingBackslash($namespaces))
-                        ->setUses(NsUtils::stripLeadingBackslash($uses))
-                        ->setClasses(NsUtils::stripLeadingBackslash($classes))
-                        ->setInterfaces(NsUtils::stripLeadingBackslash($interfaces));
+            ->setNamespaces(NsUtils::stripLeadingBackslash($namespaces))
+            ->setUses(NsUtils::stripLeadingBackslash($uses))
+            ->setClasses(NsUtils::stripLeadingBackslash($classes))
+            ->setInterfaces(NsUtils::stripLeadingBackslash($interfaces));
     }
 
 }

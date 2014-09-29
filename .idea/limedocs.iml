@@ -41,93 +41,11 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="PHP">
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/vendor/symfony/console" />
-          <root url="file://$MODULE_DIR$/vendor/phploc/phploc" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/environment" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/phpunit" />
-          <root url="file://$MODULE_DIR$/vendor/phpmd/phpmd" />
-          <root url="file://$MODULE_DIR$/vendor/squizlabs/php_codesniffer" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/dependency-injection" />
-          <root url="file://$MODULE_DIR$/vendor/doctrine/cache" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/diff" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/config" />
-          <root url="file://$MODULE_DIR$/vendor/twig/twig" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/filesystem" />
-          <root url="file://$MODULE_DIR$/vendor/psr/log" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/event-dispatcher" />
-          <root url="file://$MODULE_DIR$/vendor/michelf/php-markdown" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-token-stream" />
-          <root url="file://$MODULE_DIR$/vendor/theseer/fdomdocument" />
-          <root url="file://$MODULE_DIR$/vendor/ocramius/lazy-map" />
-          <root url="file://$MODULE_DIR$/vendor/monolog/monolog" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/finder-facade" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/phpunit-mock-objects" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/comparator" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-file-iterator" />
-          <root url="file://$MODULE_DIR$/vendor/ocramius/instantiator" />
-          <root url="file://$MODULE_DIR$/vendor/composer" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-text-template" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-code-coverage" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-timer" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/yaml" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/version" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/finder" />
-          <root url="file://$MODULE_DIR$/vendor/pdepend/pdepend" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/git" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/exporter" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/expression-language" />
-        </CLASSES>
-        <SOURCES>
-          <root url="file://$MODULE_DIR$/vendor/symfony/console" />
-          <root url="file://$MODULE_DIR$/vendor/phploc/phploc" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/environment" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/phpunit" />
-          <root url="file://$MODULE_DIR$/vendor/phpmd/phpmd" />
-          <root url="file://$MODULE_DIR$/vendor/squizlabs/php_codesniffer" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/dependency-injection" />
-          <root url="file://$MODULE_DIR$/vendor/doctrine/cache" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/diff" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/config" />
-          <root url="file://$MODULE_DIR$/vendor/twig/twig" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/filesystem" />
-          <root url="file://$MODULE_DIR$/vendor/psr/log" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/event-dispatcher" />
-          <root url="file://$MODULE_DIR$/vendor/michelf/php-markdown" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-token-stream" />
-          <root url="file://$MODULE_DIR$/vendor/theseer/fdomdocument" />
-          <root url="file://$MODULE_DIR$/vendor/ocramius/lazy-map" />
-          <root url="file://$MODULE_DIR$/vendor/monolog/monolog" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/finder-facade" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/phpunit-mock-objects" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/comparator" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-file-iterator" />
-          <root url="file://$MODULE_DIR$/vendor/ocramius/instantiator" />
-          <root url="file://$MODULE_DIR$/vendor/composer" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-text-template" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-code-coverage" />
-          <root url="file://$MODULE_DIR$/vendor/phpunit/php-timer" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/yaml" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/version" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/finder" />
-          <root url="file://$MODULE_DIR$/vendor/pdepend/pdepend" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/git" />
-          <root url="file://$MODULE_DIR$/vendor/sebastian/exporter" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/expression-language" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="PHARS">
         <CLASSES>
-          <root url="phar://$MODULE_DIR$/vendor/symfony/dependency-injection/Symfony/Component/DependencyInjection/Tests/Fixtures/includes/ProjectWithXsdExtensionInPhar.phar" />
-          <root url="phar://$MODULE_DIR$/vendor/pdepend/pdepend/src/site/rst/static_reflection/releases/staticReflection-0.1.1.phar" />
           <root url="phar://$MODULE_DIR$/build/limedocs.phar" />
         </CLASSES>
         <SOURCES>
-          <root url="phar://$MODULE_DIR$/vendor/symfony/dependency-injection/Symfony/Component/DependencyInjection/Tests/Fixtures/includes/ProjectWithXsdExtensionInPhar.phar" />
-          <root url="phar://$MODULE_DIR$/vendor/pdepend/pdepend/src/site/rst/static_reflection/releases/staticReflection-0.1.1.phar" />
           <root url="phar://$MODULE_DIR$/build/limedocs.phar" />
         </SOURCES>
       </library>

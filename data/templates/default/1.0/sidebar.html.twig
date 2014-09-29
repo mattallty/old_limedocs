@@ -15,8 +15,11 @@
                         <li class="active {% if itemc.isTrait() %} trait {% elseif itemc.isAbstract() %} abstract{% endif %}"><a href="{{doclink(itemc)}}">{{itemc.getShortName()}}</a></li>
                         <ul class="methods">
                             {% for method in itemc.getMethods() %}
-                                {% if method.isInherited() == false %}
-                                    <li {% if method.getName() == tmp.funcName %}class="active"{% endif %}><a href="{{doclink(method)}}">{{method.name}}</a></li>
+                                {% if (method.isInherited() == false
+                                    and (meta.options["show-protected-members"] == true or method.isProtected() == false)
+                                    and (meta.options["show-private-members"] == true or method.isPrivate() == false)
+                                )%}
+                                    <li {% if method.getName() == tmp.funcName and tmp.pageType == 'function' %}class="active"{% endif %}><a href="{{doclink(method)}}">{{method.name}}</a></li>
                                 {% endif %}
                             {% endfor %}
                         </ul>

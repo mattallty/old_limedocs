@@ -74,6 +74,17 @@ class TagSee extends AbstractTag
 
     protected function parseSimpleValue($tagVal)
     {
+
+        // Matches a file.ext
+        if (($file = Utils::detectFileString($tagVal))) {
+            return array('type' => 'file', 'value' => $file);
+        }
+
+        // Matches a URL ?
+        if (($file = Utils::isUrl($tagVal))) {
+            return array('type' => 'url', 'value' => $file);
+        }
+
         // scope
         if (($scopedElemParts = Utils::getScopedElementParts($tagVal))) {
             if (($data = $this->parseScopedElement($scopedElemParts))) {
@@ -124,15 +135,7 @@ class TagSee extends AbstractTag
             return array('type' => 'class', 'name' => $tagVal);
         }
 
-        // Matches a file.ext
-        if (($file = Utils::detectFileString($tagVal))) {
-            return array('type' => 'file', 'value' => $file);
-        }
 
-        // Matches a URL ?
-        if (($file = Utils::isUrl($tagVal))) {
-            return array('type' => 'url', 'value' => $file);
-        }
 
         $this->warning('Cannot parse @see tag "' . $tagVal .'" in ' . $this->getRefObject());
         return false;

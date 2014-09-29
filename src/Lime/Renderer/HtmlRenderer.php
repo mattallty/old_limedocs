@@ -83,7 +83,7 @@ class HtmlRenderer extends Renderer
 
     public function renderNamespace($ns, $nsInfos) {
         $this->setCurrentNamespace($ns, $nsInfos);
-
+        $this->templateData['tmp']['pageType'] = 'ns';
         $this->makeFile(
             $this->getDocPath(),
             $this->getNsFilename($ns),
@@ -119,6 +119,8 @@ class HtmlRenderer extends Renderer
         $this->templateData['tmp']['className'] = $class->getName();
         $this->templateData['tmp']['classInfos'] = $class;
         $this->templateData['tmp']['ancestors'] = $class->getAncestors(true);
+        $this->templateData['tmp']['pageType'] = 'class';
+
 
         return $this->makeFile(
             $this->getDocPath(),
@@ -129,6 +131,7 @@ class HtmlRenderer extends Renderer
 
     public function renderMethod($method) {
         $this->setCurrentMethod($method);
+        $this->templateData['tmp']['pageType'] = 'function';
         return $this->makeFile(
             $this->getDocPath(),
             $this->getMethodFilename($method),
@@ -197,11 +200,15 @@ class HtmlRenderer extends Renderer
 
         $twig->addFunction($getDocLink);
 
-        $getMethodLink = new \Twig_SimpleFunction('methodLink', function($class, $method) {
+        // method link
+        $twig->addFunction(new \Twig_SimpleFunction('methodLink', function($class, $method) {
             return $this->getMethodFilenameFromString($class, $method);
-        });
+        }));
 
-        $twig->addFunction($getMethodLink);
+        // method link
+        $twig->addFunction(new \Twig_SimpleFunction('classLink', function($class, $type) {
+            return $this->getClassFilenameFromString($class, $type);
+        }));
 
 
 
@@ -225,6 +232,17 @@ class HtmlRenderer extends Renderer
             $prefix = 'trait';
         }
         return $prefix . '.' . strtolower(str_replace("\\", ".", $class->name)) . '.' . $this->getFileExt();
+    }
+
+    public function getClassFilenameFromString($class, $type) {
+        if($type == 'class') {
+            $prefix = 'class';
+        }elseif($type == 'interface') {
+            $prefix = 'interface';
+        }elseif($type == 'trait') {
+            $prefix = 'trait';
+        }
+        return $prefix . '.' . strtolower(str_replace("\\", ".", $class)) . '.' . $this->getFileExt();
     }
 
     public function getMethodFilename(ReflectionMethod $method)

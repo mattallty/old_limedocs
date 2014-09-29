@@ -12,9 +12,13 @@ parameters:
     generate.inception: false
 
     generate.show-deprecated: true
+
     generate.show-protected-members: false
     generate.show-private-members: false
     generate.show-class-source: true
+
+    generate.show-class-properties: false
+
     generate.show-method-source: true
 
     generate.recursive: true

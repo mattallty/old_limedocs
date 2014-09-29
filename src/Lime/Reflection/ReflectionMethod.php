@@ -10,6 +10,7 @@
 namespace Lime\Reflection;
 
 use Lime\Common\Utils\NsUtils;
+use Lime\Common\Utils\StrUtils;
 use Lime\Logger\LoggerAwareInterface;
 use Lime\Logger\TLogger;
 use Lime\Parser\Parser;
@@ -86,24 +87,26 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
 
             foreach ($classTree as $parentClass) {
                 if (($method = $parentClass->getMethod($this->getShortName()))) {
-                    $this->info("Method ".$this->getName()." FOUND in parent class ".$parentClass->getName());
+                    $this->info("Method " . $this->getName() . " FOUND in parent class " . $parentClass->getName());
                     if (($meta = $method->getMetaData())) {
                         if (!isset($meta['inheritdoc'])) {
                             $this->info(
-                                "Metadata found for ".
-                                $this->getName().
-                                " in parent class ".$parentClass->getName() .
-                                " ".  json_encode($meta)
+                                "Metadata found for " .
+                                $this->getName() .
+                                " in parent class " . $parentClass->getName() .
+                                " " . json_encode($meta)
                             );
                             $this->metadata = array_merge($this->metadata, $meta);
                             $found = true;
                             break;
                         }
                     } else {
-                        $this->info("No metadata for ".$this->getName()." in parent class ".$parentClass->getName());
+                        $this->info(
+                            "No metadata for " . $this->getName() . " in parent class " . $parentClass->getName()
+                        );
                     }
                 } else {
-                    $this->info("Method ".$this->getName()." NOT FOUND in parent class ".$parentClass->getName());
+                    $this->info("Method " . $this->getName() . " NOT FOUND in parent class " . $parentClass->getName());
                 }
             }
 
@@ -112,8 +115,8 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
                  * @todo Add reporting here
                  */
                 $this->warning(
-                    "Method ".$this->getClass()->name.'::'.
-                    $this->getName()." has tag @inheritdoc but Limedocs ".
+                    "Method " . $this->getClass()->name . '::' .
+                    $this->getName() . " has tag @inheritdoc but Limedocs " .
                     "cannot found any documentation in class tree."
                 );
 
@@ -136,16 +139,14 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
                     foreach ($value as $seeElem) {
                         $seeElem = array_pop($seeElem);
                         if ($seeElem['type'] === 'method') {
-
-                            $classParts = explode('\\', $seeElem['class']);
-                            $shortClass = array_pop($classParts);
-                            $label = $shortClass.'&nbsp;::&nbsp;'.$seeElem['method'].'()';
-
                             $ret[] = array(
                                 'type' => $seeElem['type'],
                                 'class' => $seeElem['class'],
                                 'method' => $seeElem['method'],
-                                'label' => $label
+                                'label' => StrUtils::getMethodPrettyName(
+                                        $seeElem['class'],
+                                        $seeElem['method']
+                                    )
                             );
                         }
                     }
@@ -182,6 +183,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
             $this->metadata['return']['type'] :
             '';
     }
+
     /**
      * Get the method's return type formated as HTML
      * @return string Returns the type, html-formated
@@ -199,10 +201,10 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
             if (in_array($type_str, $nativeTypes)) {
                 $ret[] = $type_str;
             } else {
-                $ret[] = '<a href="'.strtolower(str_replace('\\', '.', $type_str)).'.html">'.
-                            NsUtils::getElementShortName($type_str) .
-                            //$type_str .
-                         '</a>';
+                $ret[] = '<a href="' . strtolower(str_replace('\\', '.', $type_str)) . '.html">' .
+                    NsUtils::getElementShortName($type_str) .
+                    //$type_str .
+                    '</a>';
             }
         }
         return implode('|', $ret);
@@ -267,7 +269,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
      */
     protected function inheritDoc()
     {
-        return (bool) $this->getMetaData('inheritdoc');
+        return (bool)$this->getMetaData('inheritdoc');
     }
 
     /**
@@ -334,7 +336,8 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
 
                     $traitClass = ReflectionFactory::factory(
                         'Lime\Reflection\ReflectionClass',
-                        $trait, $fileInfo
+                        $trait,
+                        $fileInfo
                     );
 
                     if ($traitClass->getMethod($this->getShortName())) {
@@ -347,11 +350,11 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
             $class = $this->getClass();
         }
         if (!$this->isUserDefined()) {
-            return 'http://php.net/'.$class->name.'.'.$this->getName();
+            return 'http://php.net/' . $class->name . '.' . $this->getName();
         }
 
 
-        return strtolower(str_replace('\\', '.', $class->name).'.'.$this->name).'.'.$extension;
+        return strtolower(str_replace('\\', '.', $class->name) . '.' . $this->name) . '.' . $extension;
     }
 
 
@@ -389,9 +392,9 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
         }
         $resp = array();
         foreach ($params as $param) {
-            $resp[$param->getName()]  = array(
-               'type' => $this->getParameterType($param),
-               'description' => $this->getParameterDescription($param)
+            $resp[$param->getName()] = array(
+                'type' => $this->getParameterType($param),
+                'description' => $this->getParameterDescription($param)
             );
         }
 
@@ -401,12 +404,12 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
     protected function getParameterDescription($param)
     {
         $meta = $this->getMetaData('tags');
-        $default = '<span class="muted">No description.</span>';
+        $default = '';
         if (is_array($meta)) {
             foreach ($meta as $tag) {
                 if (key($tag) === 'param') {
                     $tag = current($tag);
-                    if (isset($tag['name']) && '$'.$param->getName() === $tag['name']) {
+                    if (isset($tag['name']) && '$' . $param->getName() === $tag['name']) {
                         return isset($tag['description']) ? $tag['description'] : $default;
                     }
                 }
@@ -427,7 +430,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
             foreach ($meta as $tag) {
                 if (key($tag) === 'param') {
                     $tag = current($tag);
-                    if (isset($tag['name']) && '$'.$param->getName() === $tag['name']) {
+                    if (isset($tag['name']) && '$' . $param->getName() === $tag['name']) {
                         return isset($tag['type']) ? $tag['type'] : null;
                     }
                 }
@@ -442,7 +445,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
      *
      * @return string Parameters string
      */
-    public function getParametersAsString()
+    public function getParametersAsString($no_links = false)
     {
         $params = parent::getParameters();
         if (!count($params)) {
@@ -463,42 +466,48 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
             $classType = $this->getParameterType($param);
             if (!empty($classType)) {
                 if (in_array($classType, $nativeTypes)) {
-                    $sParam .= '<span class="modifier">'.$classType.'</span> ';
+                    $sParam .= '<span class="modifier">' . $classType . '</span> ';
                 } else {
-                    $sParam .= '<span class="modifier"><a href="'.strtolower(str_replace('\\', '.', $classType)).'.html">'.
-                                NsUtils::getElementShortName($classType) .
-                                //$type_str .
-                             '</a></span> ';
+                    if($no_links) {
+                        $sParam .= '<span class="modifier">' . NsUtils::getElementShortName($classType) . '</span> ';
+                    }else{
+                        $sParam .= '<span class="modifier"><a href="' . strtolower(
+                                str_replace('\\', '.', $classType)
+                            ) . '.html">' .
+                            NsUtils::getElementShortName($classType) .
+                            '</a></span> ';
+                    }
+
                 }
                 //$sParam .= $classType.' ';
             }
             if ($param->isPassedByReference()) {
                 $sParam .= '&';
             }
-            $sParam .= '<span class="variable">$'.$param->getName().'</span>';
+            $sParam .= '<span class="variable">$' . $param->getName() . '</span>';
 
             if ($param->isDefaultValueAvailable()) {
                 $def = $param->getDefaultValue();
                 if (is_null($def)) {
-                    $sParam.= ' = <span class="null">null</span>';
+                    $sParam .= ' = <span class="null">null</span>';
                 } elseif (is_string($def)) {
-                    $sParam.= ' = <span class="string">"'.$def.'"</span>';
+                    $sParam .= ' = <span class="string">"' . $def . '"</span>';
                 } elseif (is_int($def) || is_float($def)) {
-                    $sParam.= ' = <span class="numeric">'.$def.'</span>';
+                    $sParam .= ' = <span class="numeric">' . $def . '</span>';
                 } elseif (is_array($def)) {
-                    $sParam.= ' = <span class="null">array()</span>';
+                    $sParam .= ' = <span class="null">array()</span>';
                 } elseif (is_bool($def)) {
-                    $sParam.= ' = <span class="numeric">'.($def ? 'true' : 'false').'</span>';
+                    $sParam .= ' = <span class="numeric">' . ($def ? 'true' : 'false') . '</span>';
                 } else {
-                    $sParam.= ' = '.$param->getDefaultValue();
+                    $sParam .= ' = ' . $param->getDefaultValue();
                 }
             }
-            $response .= $sParam.' ';
+            $response .= $sParam . ' ';
             $counter++;
         }
 
-        $response.= str_repeat(']', $hasOptional);
-        $response.= $hasOptional ? ' ' : '';
+        $response .= str_repeat(']', $hasOptional);
+        $response .= $hasOptional ? ' ' : '';
 
 
         return $response;
@@ -518,19 +527,6 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
     }
 
     /**
-     * Extract parameter name from string
-     *
-     * @param string $parameter Parameter string
-     * @return string Parameter name
-     */
-    private function getParameterNameFromString($parameter)
-    {
-        // [ <required> Lime\Finder\IFinder &$finder ]
-        $rep = preg_replace('@Parameter #[0-9]+ \[ (<[a-z ]+>) ([a-zA-Z\\&\$_=\'\(\) ]+) \]@', '$2', $parameter);
-        return $rep;
-    }
-
-    /**
      * Check if the methods is inherited.
      *
      * @return boolean
@@ -544,7 +540,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
         $parent = $this->getInherits();
         if ($this->getDeclaringClass()->getFileName() !== $this->getFileName()
             && (!$parent || !$parent->isInterface())
-                ) {
+        ) {
             return true;
         }
         // or
@@ -581,7 +577,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
         if ($this->getName() === '__construct') {
             return 'Class constructor.';
         }
-        return '<span class="muted">No description.</span>';
+        return '';
     }
 
 
@@ -601,15 +597,14 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
         } elseif (isset($meta['shortDescription']) && !empty($meta['shortDescription'])) {
             return $meta['shortDescription'];
         }
-        return '<span class="muted">No description.</span>';
+        return '';
     }
 
 
     public function __toString()
     {
-        return '[method:'.$this->getName().' in file ' . $this->getFileName().']';
+        return '[method:' . $this->getName() . ' in file ' . $this->getFileName() . ']';
     }
-
 
 
 }

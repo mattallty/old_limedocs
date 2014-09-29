@@ -25,7 +25,7 @@
                 {% if(ct+1 == ctAncest) %}
                     <li style="margin-left:{{ml}}px"><b>{{ancestObj.getShortName()}}</b></li>
                 {% else %}
-                    <li style="margin-left:{{ml}}px"><a href="{{ancestObj.getDocFileName()}}">{{ancestObj.getShortName()}}</a></li>
+                    <li style="margin-left:{{ml}}px"><a href="{{doclink(ancestObj)}}">{{ancestObj.getShortName()}}</a></li>
                 {% endif %}
                 {% set ct = ct + 1 %}
                 {% if ct > 1 %}
@@ -39,9 +39,7 @@
         <div class="extends">
         {% endif %}
         {% if extendedClass %}
-            {% set cleanExtCls = extendedClass.name|replace({"\\" : "." }) %}
-            {% set cleanExtClsUrl = "#{cleanExtCls|lower}" %}
-                        <span class="modifier">extends</span> <a href="{{cleanExtClsUrl}}.{{meta.fileExt}}">{{extendedClass.getShortName()}}</a>
+            <span class="modifier">extends</span> <a href="{{doclink(extendedClass)}}">{{extendedClass.getShortName()}}</a>
         {% endif %}
         {% if impInterfaces|length %}
             {% if extendedClass %},{% endif %}
@@ -52,7 +50,7 @@
                 {% set cleanItf = itf|replace({"\\" : "." }) %}
                 {% set iftSimple = cleanItf|split(".") %}
                 {% set cleanItfUrl = "#{cleanItf|lower}.#{meta.fileExt}" %}
-                <a href="{{cleanItfUrl}}">{{iftSimple[iftSimple|length-1]}}</a>
+                <a href="{{classLink(itf, "interface")}}">{{iftSimple[iftSimple|length-1]}}</a>
                 {% if counterItf < impInterfaces|length %}, {% endif %}
             {% endfor %}
         {% endif %}
@@ -85,14 +83,14 @@
 
 
     <div>
-        <h2>Methods <a href="" onclick="return hideInheritedMembers(this, '#methods-list')" class="show-inherited">Hide inherited methods</a></h2>
+        <h2>Methods <a href="" onclick="return toggleInheritedMembers(this, '#methods-list')" class="show-inherited">Show inherited methods</a></h2>
         <table class="methods members" id="methods-list">
         {% for method in tmp.classInfos.getMethods() %}
             {% if (meta.options['show-protected-members'] == true or method.isProtected() == false) %}
                 {% if (meta.options['show-private-members'] == true or method.isPrivate() == false) %}
-                    <tr class="{% if method.isInherited() %}inherited{% endif %} {% if method.isProtected() %}protected{% elseif method.isPrivate() %}private{% endif %}">
-                    <th><a href="{{method.getDocFileName()}}" class="method-link">
-                        {{method.getName()}}</a></th>
+                    <tr class="{% if method.isInherited() %}inherited inherit-invisible{% endif %} {% if method.isProtected() %}protected{% elseif method.isPrivate() %}private{% endif %}">
+                    <th><a href="{{doclink(method)}}" class="method-link">
+                        {{method.getName()}}({{method.getParametersAsString(true)|raw}})</a></th>
                         <td>{{method.getShortDescription()|raw}}</td>
                     </tr>
                 {% endif %}
@@ -100,21 +98,21 @@
         {% endfor %}
         </table>
     </div>
-    {% if tmp.classInfos.isInterface() == false %}
+    {% if tmp.classInfos.isInterface() == false and meta.options["show-class-properties"] == true %}
     <div>
-        <h2>Properties <a href="" onclick="return hideInheritedMembers(this, '#properties-list')" class="show-inherited">Show protected &amp; private properties</a></h2>
+        <h2>Properties <a href="" onclick="return toggleInheritedMembers(this, '#properties-list')" class="show-inherited">Show protected &amp; private properties</a></h2>
         <table class="properties members" id="properties-list">
         {% for prop in tmp.classInfos.getProperties() %}
-            {# {% if (meta.options['show-protected-members'] == true or prop.isProtected() == false) %}
+            {% if (meta.options['show-protected-members'] == true or prop.isProtected() == false) %}
                 {% if (meta.options['show-private-members'] == true or prop.isPrivate() == false) %} #}
-                    <tr class="{% if prop.getInherits() %}inherited{% endif %}">
+                    <tr class="{% if prop.getInherits() %}inherited inherit-invisible{% endif %}">
                     <th>
                         <span class="modifier">{{prop.getShortType()}}</span>
                         <a href="#">${{prop.getName()}}</a></th>
                         <td>{{prop.getDescription()|raw}}</td>
                     </tr>
-               {# {% endif %}
-            {% endif %} #}
+                {% endif %}
+            {% endif %}
         {% endfor %}
         </table>
     </div>

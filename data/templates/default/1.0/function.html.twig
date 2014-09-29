@@ -66,7 +66,7 @@
     <div class="long-description">{{tmp.funcInfos.getLongDescription()|raw}}</div>
 
     <div class="funcsynopsis">
-        <span class="modifier">{{tmp.funcInfos.getReturnTypeHTML()|raw}}</span>&nbsp;<strong>{{tmp.funcInfos.getShortName()}}</strong>&nbsp;({{tmp.funcInfos.getParametersAsString()|raw}})
+        {% if(tmp.funcInfos.isStatic()) %}<span>static</span> {% endif %}<span class="modifier">{{tmp.funcInfos.getReturnTypeHTML()|raw}}</span>&nbsp;<strong>{{tmp.funcInfos.getShortName()}}</strong>&nbsp;({{tmp.funcInfos.getParametersAsString()|raw}})
     </div>
 
     {% if tmp.funcInfos.getNumberOfParameters() %}
@@ -74,7 +74,9 @@
         <dl class="parameters">
         {% for paramName,paramObj in tmp.funcInfos.getParametersForDocumentation() %}
             <dt class="variable">${{paramName}} <span class="modifier modifier-small">{{paramObj.type|raw}}</span></dt>
+            {% if paramObj.description != '' %}
             <dd>{{paramObj.description|raw}}</dd>
+            {% endif %}
         {% endfor %}
         </dl>
     {% endif %}
