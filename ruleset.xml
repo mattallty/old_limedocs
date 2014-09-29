@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="MPP">
-    <description>MobPartner Profiling Platform coding standard based on PSR2 with some additions.</description>
+<ruleset name="LIMEDOCS">
+    <description>Limedocs coding standard based on PSR2 with some additions.</description>
 
     <!-- Include most of the PSR2 standard -->
     <rule ref="PSR2">
