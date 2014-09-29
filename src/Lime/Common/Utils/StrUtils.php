@@ -68,6 +68,15 @@ class StrUtils
     }
 
 
+    /**
+     * Format a method name for displaying purpose.
+     *
+     * This method will generate strings like `ShortClassName :: methodName()`
+     *
+     * @param string $class The class name
+     * @param string $method The method name
+     * @return string Returns the name prettyfied
+     */
     public static function getMethodPrettyName($class, $method)
     {
         return substr(strrchr($class, "\\"), 1) . ' :: ' . $method . '()';

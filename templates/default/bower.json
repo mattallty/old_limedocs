@@ -1,0 +1,20 @@
+{
+    "name": "limedocs-default-template",
+    "version": "0.1",
+    "homepage": "https://limedocs.io",
+    "authors": [
+        "Matthias ETIENNE <matthias@etienne.in>"
+    ],
+    "description": "The default template for the Limedocs PHP Documentation generator.",
+    "license": "MIT",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "bootstrap": "~3.2.0"
+    }
+}

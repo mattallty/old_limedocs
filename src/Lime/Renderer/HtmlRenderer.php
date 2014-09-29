@@ -35,7 +35,7 @@ class HtmlRenderer extends Renderer
         $tplInfos = $this->getTemplate()->getInfos();
 
         $app->get('parser')->parse();
-        $documentation = $app->getFinder()->getDocumentationTree();
+        $documentation = $app->getFinder()->getNamespaces();
 
         $this->templateData = $templateData = array(
             'meta' => array(
@@ -169,7 +169,7 @@ class HtmlRenderer extends Renderer
             $tmp = '';
             foreach ($parts as $ns) {
                 $nsl = strtolower($ns);
-                $res .= '<a href="' . $tmp . $nsl . '.' . $ext . '">' . $ns . '</a> \\ ';
+                $res .= '<a href="' . $this->getNsFilename($tmp . $nsl) . '">' . $ns . '</a> \\ ';
                 $tmp .= $nsl . '.';
             }
             return substr($res, 0, -3);

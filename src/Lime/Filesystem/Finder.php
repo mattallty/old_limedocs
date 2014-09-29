@@ -264,10 +264,15 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware
      *
      * @return array
      */
-    function getDocumentationTree()
+    final public function getNamespaces()
     {
         return $this->namespaces;
     }
+
+    final public function namespaceExists($ns) {
+        return array_key_exists($ns, $this->namespaces);
+    }
+
 
     /**
      * Analyse the file set and build the file tree that can be retrieved by
