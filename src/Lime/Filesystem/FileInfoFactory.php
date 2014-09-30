@@ -10,13 +10,9 @@
 namespace Lime\Filesystem;
 
 /**
- * FileInfo Factory
+ * Factory to create {FileInfo} objects
  *
- * @author Matthias Etienne <matt@allty.com>
- * @copyright (c) 2012, Matthias Etienne
- * @license http://doculizr.allty.com/license MIT
- * @link http://doculizr.allty.com Doculizr Website
- *
+ * This factory will create {FileInfo} objects and cache them.
  */
 class FileInfoFactory
 {
@@ -26,13 +22,11 @@ class FileInfoFactory
      */
     protected static $factoryCache = array();
 
-
-
     /**
-     * Factory method used to create and cache {DoculizrFileInfo} objects
+     * Factory method used to create and cache {FileInfo} objects
      *
      * @param string $filename Filename
-     * @return DoculizrFileInfo
+     * @return FileInfo
      */
     public static function factory($filename)
     {

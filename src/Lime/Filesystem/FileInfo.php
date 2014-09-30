@@ -71,7 +71,7 @@ class FileInfo
             foreach (array_keys($this->classes) as $class) {
                 $this->classes[$class] = ReflectionFactory::factory(
                     'Lime\Reflection\ReflectionClass',
-                    $class, $this
+                    $class
                 );
             }
         }
@@ -80,7 +80,7 @@ class FileInfo
             foreach (array_keys($this->interfaces) as $itf) {
                 $this->interfaces[$itf] = ReflectionFactory::factory(
                     'Lime\Reflection\ReflectionClass',
-                    $itf, $this
+                    $itf
                 );
             }
         }

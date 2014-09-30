@@ -17,9 +17,7 @@ namespace Lime\App;
  */
 interface RuntimeParameterAware
 {
-
     public function getParameter($name);
     public function setParameter($name, $value);
     public function getParameters($namespace = null);
-
 }

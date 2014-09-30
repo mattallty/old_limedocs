@@ -11,7 +11,7 @@
 namespace Lime\Reflection;
 
 use Lime\Parser\Parser;
-use Lime\Filesystem\FileInfo;
+use Lime\Filesystem\FileInfoFactory;
 use Lime\Common\Utils;
 use Lime\Common\Utils\StrUtils;
 
@@ -35,13 +35,14 @@ class ReflectionProperty extends \ReflectionProperty implements IMetaData
      *
      * @param string $class Classname holding the property
      * @param string $name property name
-     * @param FileInfo $fileInfo File in which is declared the property.
      */
-    public function __construct($class, $name, FileInfo $fileInfo)
+    public function __construct($class, $name)
     {
         parent::__construct($class, $name);
 
-        $this->fileInfo = $fileInfo;
+        $this->fileInfo = FileInfoFactory::factory(
+            $this->getFileName()
+        );
 
         $this->setMetadata(
             Parser::parseDocComment(

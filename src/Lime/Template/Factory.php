@@ -29,7 +29,7 @@ class Factory
      */
     public static function create($template_path)
     {
-        $bundled_tpl_dir = __DIR__ . '/../../../data/templates';
+        $bundled_tpl_dir = __DIR__ . '/../../../templates';
 
         // Bundled template
         if (is_dir($bundled_tpl_dir . DS . $template_path)) {

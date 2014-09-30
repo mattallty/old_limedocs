@@ -28,7 +28,7 @@ class Utils
      * @param string|FileInfo $file Filename or {FileInfo} object
      * @return array functions found
      */
-    public static function getGlobalFunctions(FileInfo $file)
+    public static function getGlobalFunctions($file)
     {
         if (!isset(self::$globalFunctions)) {
             $definedFuncs = get_defined_functions();
@@ -36,7 +36,7 @@ class Utils
             foreach ($definedFuncs['user'] as $func) {
                 $refFunc = ReflectionFactory::factory(
                     'Lime\Reflection\ReflectionFunction',
-                    $func, $file
+                    $func
                 );
                 $filename = $refFunc->getFileName();
                 if (!isset(self::$globalFunctions[$filename])) {

@@ -85,7 +85,7 @@ class HtmlRenderer extends Renderer
         $this->setCurrentNamespace($ns, $nsInfos);
         $this->templateData['tmp']['pageType'] = 'ns';
         $this->makeFile(
-            $this->getDocPath(),
+            $this->getDocPath('files'),
             $this->getNsFilename($ns),
             $this->twig->render('ns.html.twig', $this->templateData)
         );
@@ -123,8 +123,9 @@ class HtmlRenderer extends Renderer
 
 
         return $this->makeFile(
-            $this->getDocPath(),
-            $this->getClassFilename($class),
+            $this->getDocPath('files'),
+            //$this->getClassFilename($class),
+            $class->getDocFileName($this->getFileExt()),
             $this->twig->render('class.html.twig', $this->templateData)
         );
     }
@@ -133,8 +134,8 @@ class HtmlRenderer extends Renderer
         $this->setCurrentMethod($method);
         $this->templateData['tmp']['pageType'] = 'function';
         return $this->makeFile(
-            $this->getDocPath(),
-            $this->getMethodFilename($method),
+            $this->getDocPath('files'),
+            $method->getDocFilename($this->getFileExt()),
             $this->twig->render('function.html.twig', $this->templateData)
         );
     }
@@ -220,8 +221,13 @@ class HtmlRenderer extends Renderer
         return $this->getDocPath() . 'index' . '.' . $this->getFileExt();
     }
 
-    public function getNsFilename($ns) {
-        return 'ns.' . strtolower(str_replace("\\", ".", $ns)) . '.' . $this->getFileExt();
+    public function getNsFilename($ns)
+    {
+        $ns = str_replace('\\', '/', $ns);
+        $dir = dirname($ns);
+        $nsParts = explode('/', $ns);
+        $shortNs = array_pop($nsParts);
+        return $dir . '/ns.' . $shortNs . '.' . $this->getFileExt();
     }
 
     public function getClassFilename(ReflectionClass $class) {
@@ -269,6 +275,10 @@ class HtmlRenderer extends Renderer
     private function makeFile($path, $filename, $data)
     {
         $realpath = $path . $filename;
+        $dir = dirname($realpath);
+        if(!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
         $this->debug('Writing file ' . $realpath);
         return file_put_contents($realpath, $data);
     }

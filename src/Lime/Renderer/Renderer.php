@@ -54,18 +54,14 @@ abstract class Renderer implements RendererInterface, LoggerAwareInterface, Runt
     /**
      * Gets documentation path
      *
-     * @param string $part Documentation part
      * @return string Path
      */
-    public function getDocPath($part = null)
+    public function getDocPath($suffix = null)
     {
-        if ($part === null) {
+        if ($suffix === null) {
             return $this->getOutputDir() . DS;
         }
-        if (is_array($part)) {
-            $part = implode(DS, $part);
-        }
-        return $this->getOutputDir() . DS . $part . DS;
+        return $this->getOutputDir() . DS . $suffix . DS;
     }
 
     /**
@@ -82,17 +78,17 @@ abstract class Renderer implements RendererInterface, LoggerAwareInterface, Runt
             throw new \RuntimeException('Invalid output directory.');
         }
 
-        // clean docs dir
-        is_dir($output_dir) &&
-            FsUtils::rmdir($output_dir);
+        // todo clean docs dir dependinf of a runtime option
+        /*is_dir($output_dir) &&
+            FsUtils::rmdir($output_dir);*/
 
-        $oldumask = umask(0);
 
-        // recreate docs dir
-        $this->debug('Creating directory ' . $output_dir);
-        mkdir($output_dir, 0777, true);
-
-        umask($oldumask);
+        if (false === is_dir($output_dir)) {
+            $oldumask = umask(0);
+            $this->debug('Creating directory ' . $output_dir);
+            mkdir($output_dir, 0777, true);
+            umask($oldumask);
+        }
 
         return $this;
     }

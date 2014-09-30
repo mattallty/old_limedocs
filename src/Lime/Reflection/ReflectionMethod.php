@@ -62,13 +62,14 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
      *
      * @param string $class Class name in which is declared the method.
      * @param string $name Name of the method.
-     * @param FileInfo $fileInfo File in which is declared the method.
      */
-    public function __construct($class, $name, FileInfo $fileInfo)
+    public function __construct($class, $name)
     {
         $this->info("Analysing method $class::$name()");
         parent::__construct($class, $name);
-        $this->fileInfo = $fileInfo;
+        $this->fileInfo = FileInfoFactory::factory(
+            $this->getFileName()
+        );
         $this->setMetadata(
             Parser::parseDocComment($this->getDocComment(), $this->fileInfo, $this)
         );
@@ -230,12 +231,9 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
     {
         $ret = array();
         foreach ($this->getClass()->getInterfaceNames() as $itfName) {
-            $itfTmpObj = new \ReflectionClass($itfName);
-            $fileInfo = FileInfoFactory::factory($itfTmpObj->getFilename());
             $ret[$itfName] = ReflectionFactory::factory(
                 'Lime\Reflection\ReflectionClass',
-                $itfName,
-                $fileInfo
+                $itfName
             );
         }
         if (($parentClass = $this->getInherits())) {
@@ -246,11 +244,9 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
                     foreach ($inheritedClass->getInterfaceNames() as $itfName) {
                         if (!isset($ret[$itfName])) {
                             $itfTmpObj = new \ReflectionClass($itfName);
-                            $fileInfo = FileInfoFactory::factory($itfTmpObj->getFilename());
                             $ret[$itfName] = ReflectionFactory::factory(
                                 'Lime\Reflection\ReflectionClass',
-                                $itfName,
-                                $fileInfo
+                                $itfName
                             );
                         }
                     }
@@ -323,7 +319,6 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
 
     public function getDocFileName($extension = 'html')
     {
-
         if ($this->isInherited() && ($parent = $this->getInherits())) {
             $class = $parent;
         } elseif ($this->isTraitMethod()) {
@@ -332,12 +327,9 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
                 $class = new \ReflectionClass($traits[0]);
             } else {
                 foreach ($traits as $trait) {
-                    $fileInfo = FileInfoFactory::factory($this->getFilename());
-
                     $traitClass = ReflectionFactory::factory(
                         'Lime\Reflection\ReflectionClass',
-                        $trait,
-                        $fileInfo
+                        $trait
                     );
 
                     if ($traitClass->getMethod($this->getShortName())) {
@@ -349,12 +341,20 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
         } else {
             $class = $this->getClass();
         }
+
         if (!$this->isUserDefined()) {
             return 'http://php.net/' . $class->name . '.' . $this->getName();
         }
 
+        if($this->inNamespace() === false) {
+            $nsPrefix = 'global';
+        }else{
+            $nsPrefix = str_replace('\\', '/', $this->getNamespaceName());
+        }
 
-        return strtolower(str_replace('\\', '.', $class->name) . '.' . $this->name) . '.' . $extension;
+        return $nsPrefix . '/' . $class->getShortName() . '/' . $this->getShortName() . '.' . $extension;
+
+        return 'method.' . strtolower(str_replace('\\', '.', $class->name) . '.' . $this->name) . '.' . $extension;
     }
 
 

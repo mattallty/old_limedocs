@@ -34,6 +34,6 @@ parameters:
     generate.show-docblock : false
 
     generate.html-tags: "b,strong,i,em,a,ul,ol,li,p,br,var,samp,kbd,tt,pre,code"
-    generate.template: "default/1.0"
+    generate.template: "default"
 
     generate.logo-css : "width:102px; height:44px; border:none;"

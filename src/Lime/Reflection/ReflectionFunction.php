@@ -12,7 +12,7 @@ namespace Lime\Reflection;
 use Lime\Logger\LoggerAwareInterface;
 use Lime\Logger\TLogger;
 use Lime\Parser\Parser;
-use Lime\Filesystem\FileInfo;
+use Lime\Filesystem\FileInfoFactory;
 use Lime\Core;
 
 /**
@@ -36,16 +36,39 @@ class ReflectionFunction extends \ReflectionFunction implements IMetaData, Logge
      */
     protected $fileInfo;
 
-    public function __construct($name, FileInfo $fileInfo)
+    public function __construct($func_name)
     {
-        $this->info("Analysing function $name");
-        parent::__construct($name);
+        $this->info("Analysing function $func_name");
+        parent::__construct($func_name);
 
-        $this->fileInfo = $fileInfo;
+        $this->fileInfo = FileInfoFactory::factory(
+            $this->getFileName()
+        );
 
         $this->setMetadata(
             Parser::parseDocComment($this->getDocComment(), $this->fileInfo, $this)
         );
+    }
+
+    /**
+     * Get associated documentation filename
+     *
+     * @param string $extension Filename extension
+     * @return string Return associated documentation filename
+     */
+    public function getDocFileName($extension = 'html')
+    {
+        if (!$this->isUserDefined()) {
+            return 'http://php.net/' . $this->name;
+        }
+
+        if($this->inNamespace() === false) {
+            $nsPrefix = 'global';
+        }else{
+            $nsPrefix = str_replace('\\', '/', $this->getNamespaceName());
+        }
+
+        return $nsPrefix . '/function.' . $this->getName() . '.' . $extension;
     }
 
     public function __toString()

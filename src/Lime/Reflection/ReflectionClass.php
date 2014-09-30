@@ -58,12 +58,14 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
      */
     protected $fileInfo;
 
-    public function __construct($name, FileInfo $fileInfo)
+    public function __construct($name, FileInfo $fileInfo = null)
     {
         $this->info("Analysing class $name");
         parent::__construct($name);
 
-        $this->fileInfo = $fileInfo;
+        $this->fileInfo = FileInfoFactory::factory(
+            $this->getFileName()
+        );
 
         $this->setMetadata(
             Parser::parseDocComment(
@@ -76,10 +78,9 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
 
         if (($parentClass = $this->getParentClass())) {
             $parentClassName = $parentClass->getName();
-            $parentFileInfo = FileInfoFactory::factory($parentClass->getFileName());
             $reflexParent = ReflectionFactory::factory(
                 'Lime\Reflection\ReflectionClass',
-                $parentClassName, $parentFileInfo
+                $parentClassName
             );
 
             $this->setInherits($reflexParent);
@@ -148,7 +149,18 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
      */
     public function getDocFileName($extension = 'html')
     {
-        return str_replace('\\', '.', $this->name).'.'.$extension;
+        if (!$this->isUserDefined()) {
+            return 'http://php.net/' . $this->name;
+        }
+
+        if($this->inNamespace() === false) {
+            $nsPrefix = 'global';
+        }else{
+            $nsPrefix = str_replace('\\', '/', $this->getNamespaceName());
+        }
+
+        return $nsPrefix . '/class.' . $this->getShortName() . '.' . $extension;
+        //return 'class.'. str_replace('\\', '.', $this->name) . '.' . $extension;
     }
 
     /**
@@ -190,10 +202,10 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
             $methods = parent::getMethods();
 
             foreach ($methods as $method) {
-                $fileInfo = FileInfoFactory::factory($method->getFilename());
+
                 $reflexMethod = ReflectionFactory::factory(
                     'Lime\Reflection\ReflectionMethod',
-                    $this->getName(), $method->name, $fileInfo
+                    $this->getName(), $method->name
                 );
 
                 $declaringClass = $reflexMethod->getDeclaringClass()->getName();
@@ -202,12 +214,10 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
                 if ($declaringClass != $this->getName()) {
                     $this->info("Method {$method->name} in class {$this->getName()} inherits from upper class {$declaringClass}");
 
-                    $fileInfo = FileInfoFactory::factory($reflexMethod->getDeclaringClass()->getFilename());
-
                     $reflexMethod->setInherits(
                         ReflectionFactory::factory(
                             'Lime\Reflection\ReflectionClass',
-                            $declaringClass, $fileInfo
+                            $declaringClass
                         )
                     );
 
@@ -234,14 +244,12 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
         if (is_null($this->properties)) {
             $reflexProperties = $this->getDefaultProperties();
             $this->properties = array();
-            $fileInfo = FileInfoFactory::factory($this->getFilename());
 
             foreach ($reflexProperties as $propName => $defaultValue) {
                 $reflexProp = ReflectionFactory::factory(
                     'Lime\Reflection\ReflectionProperty',
                     $this->getName(),
-                    $propName,
-                    $fileInfo
+                    $propName
                 );
 
                 $reflexProp->setAccessible(true);
@@ -250,11 +258,10 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
                 $declaringClass = $reflexProp->getDeclaringClass()->getName();
 
                 if ($declaringClass !== $this->getName()) {
-                    $fileInfo = FileInfoFactory::factory($reflexProp->getDeclaringClass()->getFilename());
                     $reflexProp->setInherits(
                         ReflectionFactory::factory(
                             'Lime\Reflection\ReflectionClass',
-                            $reflexProp->class, $fileInfo
+                            $reflexProp->class
                         )
                     );
                 }
@@ -315,10 +322,12 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
         if (!$this->isUserDefined()) {
             return Utils::beautifyDescription(Core::getQuickRef($this->name, $this->getDeclaringClass()->name));
         }
+
         $meta = $this->getMetaData();
-        if (isset($meta['longDescription']) && !empty($meta['longDescription'])) {
+
+        if (!empty($meta['longDescription'])) {
             return $meta['longDescription'];
-        } elseif (isset($meta['shortDescription']) && !empty($meta['shortDescription'])) {
+        } elseif (!empty($meta['shortDescription'])) {
             return $meta['shortDescription'];
         }
         return false;
@@ -330,7 +339,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
             return Utils::beautifyDescription(Core::getQuickRef($this->name, $this->getDeclaringClass()->name));
         }
         $meta = $this->getMetaData();
-        if (isset($meta['shortDescription']) && !empty($meta['shortDescription'])) {
+        if (!empty($meta['shortDescription'])) {
             return $meta['shortDescription'];
         }
         return false;

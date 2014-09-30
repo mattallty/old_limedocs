@@ -9,37 +9,37 @@
  */
 namespace Lime\Reflection;
 
-use Lime\Filesystem\FileInfo;
+use Lime\Logger\TLogger;
+use Lime\App\App;
+
 /**
  * Reflection Factory
  *
  */
 class ReflectionFactory
 {
+
     protected static $factoryCache = array();
 
     public static function &factory()
     {
         $args = func_get_args();
         $className = array_shift($args);
+        $logger = App::getInstance()->get('logger');
 
-        $key = md5($className . json_encode(array_slice($args, 0, -1)));
+        $key = $className . '|' . implode('.', $args);
+
+        $logger->warning(__METHOD__ . ' with key '.$key);
+
 
         if (!isset(self::$factoryCache[$key])) {
             $class = new \ReflectionClass($className);
+            $logger->warning(__METHOD__ . ' instanciate ' . $className . ' with '.json_encode($args));
             self::$factoryCache[$key] = $class->newInstanceArgs($args);
+        }else{
+            $logger->warning(__METHOD__ . ' take cache for key '.$key);
         }
 
         return self::$factoryCache[$key];
     }
-
-    public static function register()
-    {
-        $args = func_get_args();
-        $object = array_shift($args);
-        $className = array_shift($args);
-        $key = md5($className . json_encode($args));
-        self::$factoryCache[$key] = $object;
-    }
-
 }

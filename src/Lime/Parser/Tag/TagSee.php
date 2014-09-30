@@ -10,7 +10,6 @@
 
 namespace Lime\Parser\Tag;
 
-use Lime\Reflection\ReflectionFactory;
 /**
  * The see Tag
  *

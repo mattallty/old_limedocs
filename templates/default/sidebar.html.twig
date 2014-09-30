@@ -9,7 +9,7 @@
             <ul class="classes">
                 {% for itemc in tmp.nsInfos.classes %}
                     {% if tmp.className != itemc.name %}
-                        <li{% if itemc.isTrait() %} class="trait"{% elseif itemc.isAbtract() %} class="abstract"{% endif %}><a href="{{doclink(itemc)}}">{{itemc.getShortName()}}</a></li>
+                        <li{% if itemc.isTrait() %} class="trait"{% elseif itemc.isAbtract() %} class="abstract"{% endif %}><a href="{{itemc.getDocFilename()}}">{{itemc.getShortName()}}</a></li>
                     {% else %}
                         <hr />
                         <li class="active {% if itemc.isTrait() %} trait {% elseif itemc.isAbstract() %} abstract{% endif %}"><a href="{{doclink(itemc)}}">{{itemc.getShortName()}}</a></li>
