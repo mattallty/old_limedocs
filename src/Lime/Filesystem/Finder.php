@@ -15,6 +15,7 @@ use Lime\App\App;
 use Lime\Exception\RuntimeException;
 use Lime\Logger\LoggerAwareInterface;
 use Lime\Logger\TLogger;
+use Lime\Reflection\ReflectionNamespace;
 
 /**
  * Finder
@@ -25,8 +26,6 @@ use Lime\Logger\TLogger;
  */
 class Finder implements LoggerAwareInterface, RuntimeParameterAware
 {
-
-
     use TLogger;
     use TRuntimeParameter;
 
@@ -34,8 +33,6 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware
      * @var string base directory of source code to search in
      */
     protected $sourceDir;
-
-    protected $package;
 
     /**
      * @var array Array of files found
@@ -46,9 +43,10 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware
     protected $namespaces = array();
 
     /**
-     * Constructor
+     * Create a new instance
      *
      * @param string $sourceDir Base directory to search in
+     * @throws RuntimeException
      */
     final public function __construct($sourceDir)
     {
@@ -275,8 +273,8 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware
 
 
     /**
-     * Analyse the file set and build the file tree that can be retrieved by
-     * {getDocumentationTree()}
+     * Analyse the file set and build the namespaces tree that can be retrieved by
+     * {getNamespaces()}
      *
      * @return void
      * @changelog 1.1 Added 'hasTraits' table key.
@@ -290,6 +288,7 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware
         $this->namespaces['global'] = array(
             'classes' => array(),
             'interfaces' => array(),
+            'nsObject' => new ReflectionNamespace('global'),
             'hasTraits' => false
         );
         foreach ($this->fileset as $fileInfo) {
@@ -298,6 +297,7 @@ class Finder implements LoggerAwareInterface, RuntimeParameterAware
                     $this->namespaces[$ns] = array(
                         'classes' => array(),
                         'interfaces' => array(),
+                        'nsObject' => new ReflectionNamespace($ns),
                         'hasTraits' => false
                     );
                 }

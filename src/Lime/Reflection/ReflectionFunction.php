@@ -56,7 +56,7 @@ class ReflectionFunction extends \ReflectionFunction implements IMetaData, Logge
      * @param string $extension Filename extension
      * @return string Return associated documentation filename
      */
-    public function getDocFileName($extension = 'html')
+    public function getDocFileName($base_href = '', $extension = 'html')
     {
         if (!$this->isUserDefined()) {
             return 'http://php.net/' . $this->name;
@@ -68,7 +68,8 @@ class ReflectionFunction extends \ReflectionFunction implements IMetaData, Logge
             $nsPrefix = str_replace('\\', '/', $this->getNamespaceName());
         }
 
-        return $nsPrefix . '/function.' . $this->getName() . '.' . $extension;
+
+        return $base_href . $nsPrefix . '/function.' . $this->getName() . '.' . $extension;
     }
 
     public function __toString()

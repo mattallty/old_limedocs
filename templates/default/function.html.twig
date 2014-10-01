@@ -2,14 +2,14 @@
 
 {% block javascripts %}
      {{ parent() }}
-     <script type="text/javascript" src="{{relative_path}}assets/js/shCore.js"></script>
-     <script type="text/javascript" src="{{relative_path}}assets/js/shBrushPhp.js"></script>
+     <script type="text/javascript" src="{{tmp.assetsBaseHref}}assets/js/shCore.js"></script>
+     <script type="text/javascript" src="{{tmp.assetsBaseHref}}assets/js/shBrushPhp.js"></script>
 {% endblock %}
 
 {% block stylesheets %}
      {{ parent() }}
-     <link href="{{relative_path}}assets/css/shCore.css" rel="stylesheet" type="text/css" />
-     <link href="{{relative_path}}assets/css/shThemeEclipse.css" rel="stylesheet" type="text/css" />
+     <link href="{{tmp.assetsBaseHref}}assets/css/shCore.css" rel="stylesheet" type="text/css" />
+     <link href="{{tmp.assetsBaseHref}}assets/css/shThemeEclipse.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block content %}
@@ -84,7 +84,7 @@
     {% if tmp.funcInfos.hasReturnValueDocumented() %}
         <h2>Return Values</h2>
         <dl class="parameters">
-            <dt><span class="modifier">{{tmp.funcInfos.getReturnTypeHTML()|raw}}</span></dt>
+            <dt><span class="modifier">{{tmp.funcInfos.getReturnTypeHTML(tmp.baseHref)|raw}}</span></dt>
             <dd>{{tmp.funcInfos.getMetaData('return').description|raw}}</dd>
         </dl>
     {% endif %}

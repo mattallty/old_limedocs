@@ -147,7 +147,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
      * @param string $extension Filename extension
      * @return string Return associated documentation filename
      */
-    public function getDocFileName($extension = 'html')
+    public function getDocFileName($base_href = '', $extension = 'html')
     {
         if (!$this->isUserDefined()) {
             return 'http://php.net/' . $this->name;
@@ -159,8 +159,7 @@ class ReflectionClass extends \ReflectionClass implements IMetaData, LoggerAware
             $nsPrefix = str_replace('\\', '/', $this->getNamespaceName());
         }
 
-        return $nsPrefix . '/class.' . $this->getShortName() . '.' . $extension;
-        //return 'class.'. str_replace('\\', '.', $this->name) . '.' . $extension;
+        return $base_href . $nsPrefix . '/class.' . $this->getShortName() . '.' . $extension;
     }
 
     /**

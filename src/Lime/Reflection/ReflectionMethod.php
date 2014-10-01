@@ -189,7 +189,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
      * Get the method's return type formated as HTML
      * @return string Returns the type, html-formated
      */
-    public function getReturnTypeHTML()
+    public function getReturnTypeHTML($base_href = '')
     {
         $type = $this->getReturnType();
         if (empty($type)) {
@@ -202,7 +202,8 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
             if (in_array($type_str, $nativeTypes)) {
                 $ret[] = $type_str;
             } else {
-                $ret[] = '<a href="' . strtolower(str_replace('\\', '.', $type_str)) . '.html">' .
+                $obj = ReflectionFactory::factory('\Lime\Reflection\ReflectionInterface', $type_str);
+                $ret[] = '<a href="' . $obj->getDocFilename($base_href).'">' .
                     NsUtils::getElementShortName($type_str) .
                     //$type_str .
                     '</a>';
@@ -317,7 +318,7 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
         return $this;
     }
 
-    public function getDocFileName($extension = 'html')
+    public function getDocFileName($base_href = '', $extension = 'html')
     {
         if ($this->isInherited() && ($parent = $this->getInherits())) {
             $class = $parent;
@@ -331,7 +332,6 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
                         'Lime\Reflection\ReflectionClass',
                         $trait
                     );
-
                     if ($traitClass->getMethod($this->getShortName())) {
                         $class = $traitClass;
                         break;
@@ -346,15 +346,13 @@ class ReflectionMethod extends \ReflectionMethod implements IMetaData, LoggerAwa
             return 'http://php.net/' . $class->name . '.' . $this->getName();
         }
 
-        if($this->inNamespace() === false) {
+        if($this->getClass()->inNamespace() === false) {
             $nsPrefix = 'global';
         }else{
-            $nsPrefix = str_replace('\\', '/', $this->getNamespaceName());
+            $nsPrefix = str_replace('\\', '/', $this->getClass()->getNamespaceName());
         }
 
-        return $nsPrefix . '/' . $class->getShortName() . '/' . $this->getShortName() . '.' . $extension;
-
-        return 'method.' . strtolower(str_replace('\\', '.', $class->name) . '.' . $this->name) . '.' . $extension;
+        return $base_href . $nsPrefix . '/' . $class->getShortName() . '/' . $this->getShortName() . '.' . $extension;
     }
 
 

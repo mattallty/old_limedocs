@@ -16,19 +16,19 @@ use Lime\Core;
  *
  *
  */
-class ReflectionNamespace
+class ReflectionInterface
 {
 
     protected $name;
 
     /**
-     * Creates a new ReflectionNamespace
+     * Creates a new ReflectionInterface
      *
-     * @param string $namespace namespace name
+     * @param string $interface namespace name
      */
-    public function __construct($namespace)
+    public function __construct($interface)
     {
-        $this->name = $namespace;
+        $this->name = $interface;
     }
 
     /**
@@ -45,43 +45,45 @@ class ReflectionNamespace
      * @return string
      */
     public function getShortName() {
-        if($this->getName() == 'global') {
-            return 'global';
-        }
         return substr(strrchr($this->getName(), "\\"), 1);
     }
 
-    /**
-     * Gte the namespace name as a path by replacing backslashes with forwardslahes
-     * @return mixed
-     */
-    public function asPath() {
-        return str_replace('\\', '/', $this->getName());
+    public function getNamespaceName() {
+        $parts = explode('\\', $this->getName());
+        array_pop($parts);
+        return implode('\\', $parts);
     }
 
-    /**
-     * Gte the namespace name as a path by replacing backslashes with forwardslahes
-     * @return mixed
-     */
-    public function getDottedName() {
-        return str_replace('\\', '.', $this->getName());
+
+    public function isUserDefined() {
+        return $this->inNamespace();
+    }
+
+    public function inNamespace() {
+        $res = ($this->getNamespaceName() !== '');
+        return $res;
     }
 
     /**
      * Get associated documentation filename
      *
+     * @param string $base_href base href for documentation
      * @param string $extension Filename extension
      * @return string Return associated documentation filename
      */
     public function getDocFileName($base_href = '', $extension = 'html')
     {
-        if($this->getName() === 'global') {
-            return $base_href . '/ns.' . $this->getShortName() . '.' .$extension;
-        }else{
-            $dir = dirname($this->asPath());
-            return $base_href . $dir . '/ns.' . $this->getShortName() . '.' .$extension;
+        if (!$this->isUserDefined()) {
+            return 'http://php.net/' . $this->name;
         }
 
+        if($this->inNamespace() === false) {
+            $nsPrefix = 'global';
+        }else{
+            $nsPrefix = str_replace('\\', '/', $this->getNamespaceName());
+        }
+
+        return $base_href . $nsPrefix . '/class.' . $this->getShortName() . '.' . $extension;
     }
 
 }

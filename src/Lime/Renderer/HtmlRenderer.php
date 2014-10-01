@@ -10,6 +10,7 @@
 namespace Lime\Renderer;
 
 use Lime\App\App;
+use Lime\App\TRuntimeParameter;
 use Lime\Common\Utils\FsUtils;
 use Lime\Reflection\ReflectionClass;
 use Lime\Reflection\ReflectionFunction;
@@ -23,6 +24,7 @@ class HtmlRenderer extends Renderer
 
     protected $templateData;
     protected $twig;
+    protected $baseHref;
 
     /**
      * {@inheritdoc}
@@ -45,13 +47,18 @@ class HtmlRenderer extends Renderer
             ),
             'tmp' => array(),
             'doc' => $documentation,
-            'namespaces' => array_keys($documentation)
+            'namespaces' => $documentation,
+            'renderer' => $this
         );
 
         $this->makeIndex();
         $this->copyAssets();
 
         foreach ($documentation as $ns => $nsInfos) {
+
+            if($ns === 'global' && $this->getParameter('generate.document-global-ns') === false) {
+                continue;
+            }
 
             $this->renderNamespace($ns, $nsInfos);
 
@@ -81,12 +88,43 @@ class HtmlRenderer extends Renderer
         }
     }
 
-    public function renderNamespace($ns, $nsInfos) {
-        $this->setCurrentNamespace($ns, $nsInfos);
-        $this->templateData['tmp']['pageType'] = 'ns';
+    public function getCurrentBaseHref() {
+        return $this->baseHref;
+    }
+
+    protected function setCurrentBaseHref($href) {
+        $this->baseHref = $href;
+        $this->templateData['tmp']['baseHref'] = $href;
+        $this->templateData['tmp']['assetsBaseHref'] = '../' . $href;
+        return $this;
+    }
+
+
+    protected function setIndexBaseHref() {
+        $this->baseHref = './files/';
+        $this->templateData['tmp']['baseHref'] = './files/';
+        $this->templateData['tmp']['assetsBaseHref'] = './';
+        return $this;
+    }
+
+    protected function setPageType($type) {
+        $this->templateData['tmp']['pageType'] = $type;
+        return $this;
+    }
+
+    protected function renderNamespace($ns, $nsInfos) {
+
+        $this->warning("renderNamespace $ns with ".$nsInfos['nsObject']->getDocFilename());
+
+        $file = $this->getDocPath('files') . $nsInfos['nsObject']->getDocFilename();
+
+        $this
+            ->setCurrentNamespace($ns, $nsInfos)
+            ->setPageType('ns')
+            ->computeBaseHrefFromFile($file);
+
         $this->makeFile(
-            $this->getDocPath('files'),
-            $this->getNsFilename($ns),
+            $file,
             $this->twig->render('ns.html.twig', $this->templateData)
         );
     }
@@ -94,55 +132,91 @@ class HtmlRenderer extends Renderer
     protected function setCurrentNamespace($ns, $nsInfos) {
         $this->templateData['tmp']['ns'] = $ns;
         $this->templateData['tmp']['nsInfos'] = $nsInfos;
+        return $this;
     }
 
 
-    public function renderClass($class)
+    protected function renderClass($class)
     {
         return $this->renderClassOrSimilar($class);
     }
 
-    public function renderInterface($interface)
+    protected function renderInterface($interface)
     {
         return $this->renderClassOrSimilar($interface);
     }
 
-    protected function makeIndex() {
+    protected function makeIndex()
+    {
+        $file = $this->getDocPath() . $this->getIndexFilename();
+
+        $this
+            ->setPageType('index')
+            ->setIndexBaseHref();
+
         return $this->makeFile(
-            $this->getDocPath(), $this->getIndexFilename(),
+            $file,
             $this->twig->render('index.html.twig', $this->templateData)
         );
     }
 
-    protected function renderClassOrSimilar(ReflectionClass $class) {
-
+    protected function setCurrentClass($class) {
         $this->templateData['tmp']['className'] = $class->getName();
         $this->templateData['tmp']['classInfos'] = $class;
         $this->templateData['tmp']['ancestors'] = $class->getAncestors(true);
-        $this->templateData['tmp']['pageType'] = 'class';
+        return $this;
+    }
 
+    protected function renderClassOrSimilar(ReflectionClass $class)
+    {
+        $file = $this->getDocPath('files') . $class->getDocFileName('', $this->getFileExt());
+
+        $this
+            ->setCurrentClass($class)
+            ->setPageType('class')
+            ->computeBaseHrefFromFile($file);
 
         return $this->makeFile(
-            $this->getDocPath('files'),
-            //$this->getClassFilename($class),
-            $class->getDocFileName($this->getFileExt()),
+            $file,
             $this->twig->render('class.html.twig', $this->templateData)
         );
     }
 
-    public function renderMethod($method) {
-        $this->setCurrentMethod($method);
-        $this->templateData['tmp']['pageType'] = 'function';
+    protected function renderMethod($method)
+    {
+        $file = $this->getDocPath('files') . $method->getDocFilename('', $this->getFileExt());
+
+        $this
+            ->setCurrentMethod($method)
+            ->setPageType('function')
+            ->computeBaseHrefFromFile($file);
+
         return $this->makeFile(
-            $this->getDocPath('files'),
-            $method->getDocFilename($this->getFileExt()),
+            $file,
             $this->twig->render('function.html.twig', $this->templateData)
         );
+    }
+
+    protected function computeBaseHrefFromFile($file) {
+        $docs_path_len = count(explode('/', $this->getDocPath('files')));
+        $parts_len = count(explode('/', $file));
+        $repeat = $parts_len - $docs_path_len;
+        if($repeat < 0) {
+            $base = './';
+        }else{
+            $base = str_repeat('../', $repeat);
+        }
+
+        if(substr($base, -1) != '/') {
+            $base .= '/';
+        }
+        return $this->setCurrentBaseHref($base);
     }
 
     protected function setCurrentMethod($method) {
         $this->templateData['tmp']['funcName'] = $method->getName();
         $this->templateData['tmp']['funcInfos'] = $method;
+        return $this;
     }
 
     private function copyAssets() {
@@ -170,7 +244,8 @@ class HtmlRenderer extends Renderer
             $tmp = '';
             foreach ($parts as $ns) {
                 $nsl = strtolower($ns);
-                $res .= '<a href="' . $this->getNsFilename($tmp . $nsl) . '">' . $ns . '</a> \\ ';
+                $res .= '<a href="#">' . $ns . '</a> \\ ';
+                //$res .= '<a href="' . $this->getNsFilename($tmp . $nsl) . '">' . $ns . '</a> \\ ';
                 $tmp .= $nsl . '.';
             }
             return substr($res, 0, -3);
@@ -189,14 +264,7 @@ class HtmlRenderer extends Renderer
         $twig->addFilter($filter);
 
         $getDocLink = new \Twig_SimpleFunction('doclink', function($elem) {
-            if($elem instanceof ReflectionClass) {
-                return $this->getClassFilename($elem);
-            } else if($elem instanceof ReflectionMethod) {
-                return $this->getMethodFilename($elem);
-            } else if($elem instanceof ReflectionFunction) {
-                return $this->getFunctionFilename($elem);
-            }
-            return $this->getNsFilename($elem);
+            return '';
         });
 
         $twig->addFunction($getDocLink);
@@ -216,31 +284,12 @@ class HtmlRenderer extends Renderer
         return $twig;
     }
 
-    public function getDocIndexPath()
+    protected function getDocIndexPath()
     {
         return $this->getDocPath() . 'index' . '.' . $this->getFileExt();
     }
 
-    public function getNsFilename($ns)
-    {
-        $ns = str_replace('\\', '/', $ns);
-        $dir = dirname($ns);
-        $nsParts = explode('/', $ns);
-        $shortNs = array_pop($nsParts);
-        return $dir . '/ns.' . $shortNs . '.' . $this->getFileExt();
-    }
-
-    public function getClassFilename(ReflectionClass $class) {
-        $prefix = 'class';
-        if($class->isInterface()) {
-            $prefix = 'interface';
-        }elseif($class->isTrait()){
-            $prefix = 'trait';
-        }
-        return $prefix . '.' . strtolower(str_replace("\\", ".", $class->name)) . '.' . $this->getFileExt();
-    }
-
-    public function getClassFilenameFromString($class, $type) {
+    protected function getClassFilenameFromString($class, $type) {
         if($type == 'class') {
             $prefix = 'class';
         }elseif($type == 'interface') {
@@ -251,36 +300,24 @@ class HtmlRenderer extends Renderer
         return $prefix . '.' . strtolower(str_replace("\\", ".", $class)) . '.' . $this->getFileExt();
     }
 
-    public function getMethodFilename(ReflectionMethod $method)
-    {
-        $class = $method->getClass();
-        return 'method.' . strtolower(str_replace("\\", ".", $class->name)) . '.' . strtolower($method->getName()) . '.' . $this->getFileExt();
-    }
-
-    public function getMethodFilenameFromString($class, $method)
+    protected function getMethodFilenameFromString($class, $method)
     {
         return 'method.' . strtolower(str_replace("\\", ".", $class)) . '.' . strtolower($method) . '.'.$this->getFileExt();
     }
 
-    public function getFunctionFilename(ReflectionFunction $function)
-    {
-        return 'function.' . strtolower($function->getName()) . '.' . $this->getFileExt();
-    }
-
-    public function getIndexFilename()
+    protected function getIndexFilename()
     {
         return 'index' . '.' . $this->getFileExt();
     }
 
-    private function makeFile($path, $filename, $data)
+    protected function makeFile($path, $data)
     {
-        $realpath = $path . $filename;
-        $dir = dirname($realpath);
+        $dir = dirname($path);
         if(!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
-        $this->debug('Writing file ' . $realpath);
-        return file_put_contents($realpath, $data);
+        $this->debug('Writing file ' . $path);
+        return file_put_contents($path, $data);
     }
 
     /**

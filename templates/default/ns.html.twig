@@ -7,7 +7,7 @@
             <h2>Interfaces</h2>
             <ul class="interfaces">
             {% for item in tmp.nsInfos.interfaces %}
-                <li><a href="{{doclink(item)}}" title="{{item.name}}" class="interface-link">{{item.getShortName()}}</a>
+                <li><a href="{{item.getDocFilename(tmp.baseHref)}}" title="{{item.name}}" class="interface-link">{{item.getShortName()}}</a>
                 {% if item.getShortDescription()|raw != '' %}
                     - {{item.getShortDescription()|raw}}</li>
                 {% endif %}
@@ -27,7 +27,7 @@
             <ul class="classes">
             {% for item in tmp.nsInfos.classes %}
                 {% if item.isTrait() == false %}
-                    <li{% if item.isTrait() %} class="trait"{% elseif item.isAbstract() %} class="abstract"{% endif %}><a title="{{item.name}}" class="class-link" href="{{doclink(item)}}">{{item.getShortName()}}</a>
+                    <li{% if item.isTrait() %} class="trait"{% elseif item.isAbstract() %} class="abstract"{% endif %}><a title="{{item.name}}" class="class-link" href="{{item.getDocFilename(tmp.baseHref)}}">{{item.getShortName()}}</a>
                         {% if item.getShortDescription()|raw != '' %}
                             - {{item.getShortDescription()|raw}}
                         {% endif %}
@@ -43,7 +43,7 @@
         <ul class="classes">
         {% for item in tmp.nsInfos.classes %}
             {% if item.isTrait() %}
-                <li class="trait"><a title="{{item.name}}" href="{{doclink(item)}}" class="trait-link">{{item.getShortName()}}</a>
+                <li class="trait"><a title="{{item.name}}" href="{{item.getDocFilename(tmp.baseHref)}}" class="trait-link">{{item.getShortName()}}</a>
                     {% if item.getShortDescription()|raw != '' %}
                         - {{item.getShortDescription()|raw}}
                     {% endif %}

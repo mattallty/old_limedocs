@@ -11,6 +11,8 @@ parameters:
     generate.examples:   "examples"
     generate.inception: false
 
+    generate.document-global-ns: false
+
     generate.show-deprecated: true
 
     generate.show-protected-members: false

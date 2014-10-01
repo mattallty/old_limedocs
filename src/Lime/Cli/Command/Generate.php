@@ -14,6 +14,7 @@ use Lime\Cli\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Yaml\Yaml;
 use Lime\App\App;
 use Lime\Template\Utils;
 
@@ -140,7 +141,25 @@ class Generate extends Command
     {
         $app = App::getInstance();
         $logger = $app->get('logger');
-        $options = array_filter($input->getOptions());
+        $source_dir = realpath($input->getArgument('source-dir'));
+
+        $config_files = array(
+            $source_dir . DS . '.limedocs.yml',
+            $source_dir . DS . '.limedocs.yml.dist',
+            $source_dir . DS . 'limedocs.yml',
+            $source_dir . DS . 'limedocs.yml.dist'
+        );
+
+        $config_file_opt = array();
+
+        foreach($config_files as $file) {
+            if(file_exists($file) && is_readable($file)) {
+                $config_file_opt = Yaml::parse(file_get_contents($file));
+                break;
+            }
+        }
+
+        $options = array_merge($config_file_opt, array_filter($input->getOptions()));
 
         foreach ($options as $optName => $optVal) {
             $this->setParameter('generate.' . $optName, $optVal);
@@ -148,7 +167,7 @@ class Generate extends Command
 
         $this->setParameter(
             'generate.source-dir',
-            realpath($input->getArgument('source-dir'))
+            $source_dir
         );
 
         $logger->info("Initializing Limedocs...");
